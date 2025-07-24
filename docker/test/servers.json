@@ -1,0 +1,35 @@
+[
+
+  {
+    "name": "UlkaTV Server",
+    "server": "//103.189.178.116.net/backend",
+    "dlURL": "backend/garbage.php",
+    "ulURL": "backend/empty.php",
+    "pingURL": "backend/empty.php",
+    "getIpURL": "backend/getIP.php"
+  },
+
+  {
+    "name": "UlkaTV India Server",
+    "server": "//202.62.72.222:40081/.net/backend",
+    "id": 51,
+    "dlURL": "garbage.php",
+    "ulURL": "empty.php",
+    "pingURL": "empty.php",
+    "getIpURL": "getIP.php",
+    "sponsorName": "Clouvider",
+    "sponsorURL": "https://www.clouvider.co.uk/"
+  },
+  {
+    "name": "Atlanta, United States (Clouvider)",
+    "server": "//atl.speedtest.clouvider.net/backend",
+    "id": 53,
+    "dlURL": "garbage.php",
+    "ulURL": "empty.php",
+    "pingURL": "empty.php",
+    "getIpURL": "getIP.php",
+    "sponsorName": "Clouvider",
+    "sponsorURL": "https://www.clouvider.co.uk/"
+  }
+  
+]
