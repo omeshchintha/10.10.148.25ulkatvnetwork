@@ -668,11 +668,22 @@ function initUI(){
 <meta charset="UTF-8" />
 <script type="text/javascript" src="speedtest.js"></script>
 <script type="text/javascript">
+
+
+// ✅ Add this function to replace crypto.randomUUID()
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
 function I(i){return document.getElementById(i);}
 
 var SPEEDTEST_SERVERS = [
   {
-    name: "UlkaTV Server",
+    name: "Speedtest Server Side-116",
     server: "//103.189.178.116:5000/",
     dlURL: "backend/garbage.php",
     ulURL: "backend/empty.php",
@@ -680,7 +691,7 @@ var SPEEDTEST_SERVERS = [
     getIpURL: "backend/getIP.php"
   },
     {
-    name: "UlkaTV Live Server",
+    name: "Giganet IPTV Mumbai",
     server: "//103.98.7.234/",
     dlURL: "backend/garbage.php",
     ulURL: "backend/empty.php",
@@ -688,7 +699,7 @@ var SPEEDTEST_SERVERS = [
     getIpURL: "backend/getIP.php"
   },
   {
-    name: "UlkaTV Main Server",
+    name: "Test CDN Server",
     server: "//202.62.72.222/ulkaspeedtest/",
     dlURL: "backend/garbage.php",
     ulURL: "backend/empty.php",
@@ -847,7 +858,7 @@ function startStop() {
                 let testId, ip, ping, jitter, download, upload, selectedServer;
 
                 try {
-                    testId = uiData.testId || crypto.randomUUID();
+                   testId = uiData.testId || generateUUID();
                     ip = uiData.clientIp || "N/A";
                     ping = format(uiData.pingStatus || 0);
                     jitter = format(uiData.jitterStatus || 0);
