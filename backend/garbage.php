@@ -1,6 +1,11 @@
 <?php
 
-// Disable Compression
+// ✅ CORS headers: ఎప్పుడూ పైనే ఉండాలి
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST');
+header('Access-Control-Allow-Headers: Content-Encoding, Content-Type');
+
+// ✅ Compression ni disable cheyyadam
 @ini_set('zlib.output_compression', 'Off');
 @ini_set('output_buffering', 'Off');
 @ini_set('output_handler', '');
@@ -32,12 +37,9 @@ function sendHeaders()
 {
     header('HTTP/1.1 200 OK');
 
-    if (isset($_GET['cors'])) {
-        header('Access-Control-Allow-Origin: *');
-        header('Access-Control-Allow-Methods: GET, POST');
-    }
+    // ✅ Ikkada `CORS` header need ledu - top lo already icham
 
-    // Indicate a file download
+    // File transfer headers
     header('Content-Description: File Transfer');
     header('Content-Type: application/octet-stream');
     header('Content-Disposition: attachment; filename=random.dat');
@@ -61,3 +63,4 @@ for ($i = 0; $i < $chunks; $i++) {
     echo $data;
     flush();
 }
+?>

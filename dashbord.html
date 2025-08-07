@@ -679,6 +679,14 @@ var SPEEDTEST_SERVERS = [
     pingURL: "backend/empty.php",
     getIpURL: "backend/getIP.php"
   },
+    {
+    name: "UlkaTV Live Server",
+    server: "//103.98.7.234/",
+    dlURL: "backend/garbage.php",
+    ulURL: "backend/empty.php",
+    pingURL: "backend/empty.php",
+    getIpURL: "backend/getIP.php"
+  },
   {
     name: "UlkaTV Main Server",
     server: "//202.62.72.222/ulkaspeedtest/",
@@ -686,8 +694,9 @@ var SPEEDTEST_SERVERS = [
     ulURL: "backend/empty.php",
     pingURL: "backend/empty.php",
     getIpURL: "backend/getIP.php"
-  }
+  },
 ];
+
 
 var s=new Speedtest(); //create speed test object
 s.setParameter("telemetry_level","basic"); //enable basic telemetry (for results sharing)
@@ -743,8 +752,6 @@ function initServers(){
     }
   }
 }
-
-
 
 function onServerChange() {
   const selectedIndex = document.getElementById("server").value;
@@ -810,74 +817,113 @@ function format(d){
 }
 
 //UI CODE
-var uiData=null;
-function startStop(){
-    if(s.getState()==3){
-		//speed test is running, abort
-		s.abort();
-		data=null;
-		I("startStopBtn").className="";
-		I("server").disabled=false;
-		initUI();
-	}else{
-		//test is not running, begin
-		I("startStopBtn").className="running";
-		I("shareArea").style.display="none";
-		I("server").disabled=true;
-		s.onupdate=function(data){
-            uiData=data;
-		};
+var uiData = null;
 
-		s.onend = function(aborted){
-			I("startStopBtn").className="";
-			I("server").disabled=false;
-			updateUI(true);
+function startStop() {
+    if (s.getState() == 3) {
+        // speed test is running, abort
+        s.abort();
+        data = null;
+        I("startStopBtn").className = "";
+        I("server").disabled = false;
+        initUI();
+    } else {
+        // test is not running, begin
+        I("startStopBtn").className = "running";
+        I("shareArea").style.display = "none";
+        I("server").disabled = true;
 
-			if(!aborted){
-				try{
-					const testId = uiData.testId || crypto.randomUUID();
-					const ip = uiData.clientIp || "N/A";
-					const ping = format(uiData.pingStatus || 0);
-					const jitter = format(uiData.jitterStatus || 0);
-					const download = format(uiData.dlStatus || 0);
-					const upload = format(uiData.ulStatus || 0);
-					const selectedServer = s.getSelectedServer();
+        s.onupdate = function (data) {
+            uiData = data;
+        };
 
-					if (testId && testId !== "N/A") {
-					  I("testId").textContent = testId;
-					} else {
-					  I("testId").parentElement.style.display = "none"; // hide <p>Test ID: ...</p>
-					}
+        s.onend = function (aborted) {
+            console.log("Test Ended", aborted, uiData);
+            I("startStopBtn").className = "";
+            I("server").disabled = false;
+            updateUI(true);
 
-					// if (selectedServer) {
-					//  const serverIp = selectedServer.server.replace(/^.*\/\//, '').replace(/\/+$/, '');
-					//    I("shareServer").textContent = `${serverIp} - ${selectedServer.name}`;
-					// }
+            if (!aborted) {
+                let testId, ip, ping, jitter, download, upload, selectedServer;
 
-					if (selectedServer) {
-					  I("serverUsed").textContent = selectedServer.server.replace("//", "") + " - " + selectedServer.name;
-					}
+                try {
+                    testId = uiData.testId || crypto.randomUUID();
+                    ip = uiData.clientIp || "N/A";
+                    ping = format(uiData.pingStatus || 0);
+                    jitter = format(uiData.jitterStatus || 0);
+                    download = format(uiData.dlStatus || 0);
+                    upload = format(uiData.ulStatus || 0);
+                    selectedServer = s.getSelectedServer();
 
-					I("shareIp").textContent = ip;
-					I("sharePing").textContent = ping;
-					I("shareJitter").textContent = jitter;
-					I("shareDownload").textContent = download;
-					I("shareUpload").textContent = upload;
+                    // UI Display
+                    if (testId && testId !== "N/A") {
+                        I("testId").textContent = testId;
+                    } else {
+                        I("testId").parentElement.style.display = "none";
+                    }
 
-					const shareURL = window.location.href.substring(0, window.location.href.lastIndexOf("/")) + "/results/?id=" + testId;
-					I("resultsImg").src = shareURL;
-					I("resultsURL").value = shareURL;
+                    if (selectedServer) {
+                        I("serverUsed").textContent =
+                            selectedServer.server.replace("//", "") +
+                            " - " +
+                            selectedServer.name;
+                    }
 
-					I("shareArea").style.display = "";
-				} catch (e) {
-					console.error("Error populating share area:", e);
-				}
-			}
-		};
+                    I("shareIp").textContent = ip;
+                    I("sharePing").textContent = ping;
+                    I("shareJitter").textContent = jitter;
+                    I("shareDownload").textContent = download;
+                    I("shareUpload").textContent = upload;
 
-		s.start();
-	}
+                    const shareURL =
+                        window.location.href.substring(
+                            0,
+                            window.location.href.lastIndexOf("/")
+                        ) +
+                        "/results/?id=" +
+                        testId;
+                    I("resultsImg").src = shareURL;
+                    I("resultsURL").value = shareURL;
+
+                    I("shareArea").style.display = "";
+
+                } catch (e) {
+                    console.error("Error populating share area:", e);
+                    return; // skip fetch if UI fails
+                }
+
+                // ✅ API call: Send to server
+                const payload = {
+                    test_id: testId,
+                    ip_address: ip,
+                    ping,
+                    jitter,
+                    download_speed: download,
+                    upload_speed: upload,
+                    server: selectedServer?.name || "Unknown"
+                };
+
+                fetch("http://103.98.7.234/backend/save_results.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        console.log("Results saved to server:", data);
+                    })
+                    .catch((error) => {
+                        console.error("Saving results failed:", error);
+                    });
+            }
+        };
+
+        s.start();
+    }
 }
+
 //this function reads the data sent back by the test and updates the UI
 function updateUI(forced){
 	if(!forced&&s.getState()!=3) return;
@@ -1215,6 +1261,7 @@ function initUI(){
 </style>
 <title>NetWork Diagnostics</title>
 </head>
+
 <body onload="initServers()">
 
 
