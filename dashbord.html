@@ -893,8 +893,8 @@ function startStop() {
                         ) +
                         "/results/?id=" +
                         testId;
-                    I("resultsImg").src = shareURL;
-                    I("resultsURL").value = shareURL;
+                    // I("resultsImg").src = shareURL;
+                    // I("resultsURL").value = shareURL;
 
                     I("shareArea").style.display = "";
 
@@ -989,7 +989,7 @@ function initUI(){
 	}
 
 	h1 {
-		color: #ee7676; /* White color */
+		color: #090707; /* White color */
 		font-size: 2em; /* Larger text */
 		font-weight: bold; /* Bold text */
 		text-transform: uppercase; /* Uppercase text */
@@ -1367,7 +1367,7 @@ function initUI(){
 		</div> -->
 
 		<div id="shareArea" style="display:none">
-			<h3>Share Results</h3>
+			<h3>Results</h3>
 			<p><strong>Test ID:</strong> <span id="testId"></span></p>
 			<p><strong>Server Used:</strong> <span id="serverUsed"></span></p>
 
@@ -1377,10 +1377,10 @@ function initUI(){
 			<p><strong>Download Speed:</strong> <span id="shareDownload"></span> Mbps</p>
 			<p><strong>Upload Speed:</strong> <span id="shareUpload"></span> Mbps</p>
 		
-			<p><strong>Sharable Link:</strong></p>
-			<input type="text" value="" id="resultsURL" readonly="readonly" onclick="this.select();document.execCommand('copy');alert('Link copied');" />
-			<br/>
-			<img src="" id="resultsImg" />
+			<!-- <p><strong>Sharable Link:</strong></p> -->
+			<!-- <input type="text" value="" id="resultsURL" readonly="readonly" onclick="this.select();document.execCommand('copy');alert('Link copied');" /> -->
+			<!-- <br/> -->
+			<!-- <img src="" id="resultsImg" /> -->
 		</div>
 		
 	</div>
