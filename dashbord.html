@@ -777,9 +777,6 @@ function initUI(){
 
 
 
-
-
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -884,28 +881,79 @@ function initServers(){
   }
 }
 
-// function onServerChange() {
-//   const selectedIndex = document.getElementById("server").value;
-//   const selectedServer = SPEEDTEST_SERVERS[selectedIndex];
-//   const pingURL = (location.protocol === "https:" ? "https:" : "http:") + selectedServer.server + selectedServer.pingURL;
 
-//   const pingStart = performance.now();
-//   fetch(pingURL + "?t=" + Math.random(), { method: "GET", cache: "no-cache" })
-//     .then(() => {
-//       const pingEnd = performance.now();
-//       const pingTime = Math.round(pingEnd - pingStart);
-//       document.getElementById("pingResult").textContent = `Ping: ${pingTime} ms`;
-//     })
-//     .catch(() => {
-//       document.getElementById("pingResult").textContent = "Ping failed ❌";
-// 	  document.getElementById("message").textContent = "⚠️ Server ippudu down lo undi, vere server try cheyyandi.";
-//       document.getElementById("message").style.color = "red";
-//     });
+// function checkAllZeroAfterTest() {
+// 	setTimeout(() => {
+// 		const pingValue = parseFloat(document.getElementById("pingText").textContent) || 0;
+// 		const jitterValue = parseFloat(document.getElementById("jitText").textContent) || 0;
+// 		const dlValue = parseFloat(document.getElementById("dlText").textContent) || 0;
+// 		const ulValue = parseFloat(document.getElementById("ulText").textContent) || 0;
 
-//   // Update Speedtest selected server also
-//   s.setSelectedServer(selectedServer);
+// 		if (pingValue === 0 && jitterValue === 0 && dlValue === 0 && ulValue === 0) {
+// 			document.getElementById("errorMessage").textContent = "❌ Connection Failed or Server Down. Try another server.";
+// 			document.getElementById("errorMessage").style.display = "block";
+// 		} else {
+// 			document.getElementById("errorMessage").style.display = "none";
+// 		}
+// 	}, 5000); // 5 seconds delay
 // }
 
+function checkAllZeroAfterTest() {
+    setTimeout(() => {
+        const pingValue = parseFloat(document.getElementById("pingText").textContent) || 0;
+        const jitterValue = parseFloat(document.getElementById("jitText").textContent) || 0;
+        const dlValue = parseFloat(document.getElementById("dlText").textContent) || 0;
+        const ulValue = parseFloat(document.getElementById("ulText").textContent) || 0;
+
+        if (pingValue === 0 && jitterValue === 0 && dlValue === 0 && ulValue === 0) {
+            const errEl = document.getElementById("errorMessage");
+            errEl.textContent = "❌ Connection Failed or Server Down. Try another server.";
+            errEl.style.display = "block";
+
+            // 5 seconds taruvata error hide + reset
+            setTimeout(() => {
+                errEl.style.display = "none";
+                resetTestState();
+            }, 5000);
+        }
+    }, 5000); 
+}
+
+// function resetTestState() {
+//     try { stopTest(); } catch(e) {}
+//     document.getElementById("startStopBtn").classList.remove("running");
+
+//     document.getElementById("pingText").textContent = "";
+//     document.getElementById("jitText").textContent = "";
+//     document.getElementById("dlText").textContent = "";
+//     document.getElementById("ulText").textContent = "";
+
+//     // ✅ Reset server dropdown to default
+//     const serverDropdown = document.getElementById("server");
+//     if (serverDropdown.options.length > 0) {
+//         serverDropdown.selectedIndex = 0; // first option as default
+//     }
+// }
+
+
+function resetTestState() {
+    try { stopTest(); } catch(e) {}
+    document.getElementById("startStopBtn").classList.remove("running");
+
+    document.getElementById("pingText").textContent = "";
+    document.getElementById("jitText").textContent = "";
+    document.getElementById("dlText").textContent = "";
+    document.getElementById("ulText").textContent = "";
+
+    // ✅ Reset server dropdown to default
+    const serverDropdown = document.getElementById("server");
+    if (serverDropdown.options.length > 0) {
+        serverDropdown.selectedIndex = 0; // first option as default
+    }
+
+    // ✅ Enable dropdown again after reset
+    serverDropdown.disabled = false;
+}
 
 function onServerChange() {
     const selectedIndex = document.getElementById("server").value;
@@ -922,21 +970,15 @@ function onServerChange() {
         .then(() => {
             const pingEnd = performance.now();
             const pingTime = Math.round(pingEnd - pingStart);
-            document.getElementById("pingResult").textContent = `Ping: ${pingTime} ms`;
-
-            // ✅ Ping success — enable start button
             document.getElementById("startStopBtn").disabled = false;
         })
         .catch(() => {
-            document.getElementById("pingResult").textContent = "Ping failed ❌";
             document.getElementById("message").textContent = "❌ Server Down — Please select another server.";
             document.getElementById("message").style.color = "red";
 
-            // ❌ Ping fail — disable start button
             document.getElementById("startStopBtn").disabled = true;
         });
 
-    // Update Speedtest selected server
     s.setSelectedServer(selectedServer);
 }
 
@@ -985,112 +1027,6 @@ function format(d){
 //UI CODE
 var uiData = null;
 
-// function startStop() {
-//     if (s.getState() == 3) {
-//         // speed test is running, abort
-//         s.abort();
-//         data = null;
-//         I("startStopBtn").className = "";
-//         I("server").disabled = false;
-//         initUI();
-//     } else {
-//         // test is not running, begin
-//         I("startStopBtn").className = "running";
-//         I("shareArea").style.display = "none";
-//         I("server").disabled = true;
-
-//         s.onupdate = function (data) {
-//             uiData = data;
-//         };
-
-//         s.onend = function (aborted) {
-//             console.log("Test Ended", aborted, uiData);
-//             I("startStopBtn").className = "";
-//             I("server").disabled = false;
-//             updateUI(true);
-
-//             if (!aborted) {
-//                 let testId, ip, ping, jitter, download, upload, selectedServer;
-
-//                 try {
-//                    testId = uiData.testId || generateUUID();
-//                     ip = uiData.clientIp || "N/A";
-//                     ping = format(uiData.pingStatus || 0);
-//                     jitter = format(uiData.jitterStatus || 0);
-//                     download = format(uiData.dlStatus || 0);
-//                     upload = format(uiData.ulStatus || 0);
-//                     selectedServer = s.getSelectedServer();
-
-//                     // UI Display
-//                     if (testId && testId !== "N/A") {
-//                         I("testId").textContent = testId;
-//                     } else {
-//                         I("testId").parentElement.style.display = "none";
-//                     }
-
-//                     if (selectedServer) {
-//                         I("serverUsed").textContent =
-//                             selectedServer.server.replace("//", "") +
-//                             " - " +
-//                             selectedServer.name;
-//                     }
-
-//                     I("shareIp").textContent = ip;
-//                     I("sharePing").textContent = ping;
-//                     I("shareJitter").textContent = jitter;
-//                     I("shareDownload").textContent = download;
-//                     I("shareUpload").textContent = upload;
-
-//                     const shareURL =
-//                         window.location.href.substring(
-//                             0,
-//                             window.location.href.lastIndexOf("/")
-//                         ) +
-//                         "/results/?id=" +
-//                         testId;
-//                     // I("resultsImg").src = shareURL;
-//                     // I("resultsURL").value = shareURL;
-
-//                     I("shareArea").style.display = "";
-
-//                 } catch (e) {
-//                     console.error("Error populating share area:", e);
-//                     return; // skip fetch if UI fails
-//                 }
-
-//                 // ✅ API call: Send to server
-//                 const payload = {
-//                     test_id: testId,
-//                     ip_address: ip,
-//                     ping,
-//                     jitter,
-//                     download_speed: download,
-//                     upload_speed: upload,
-//                     server: selectedServer?.name || "Unknown"
-//                 };
-
-//                 fetch("http://103.98.7.234/backend/save_results.php", {
-//                     method: "POST",
-//                     headers: {
-//                         "Content-Type": "application/json"
-//                     },
-//                     body: JSON.stringify(payload)
-//                 })
-//                     .then((response) => response.json())
-//                     .then((data) => {
-//                         console.log("Results saved to server:", data);
-//                     })
-//                     .catch((error) => {
-//                         console.error("Saving results failed:", error);
-//                     });
-//             }
-//         };
-
-//         s.start();
-//     }
-// }
-
-
 function startStop() {
     if (s.getState() == 3) {
         // speed test is running, abort
@@ -1118,6 +1054,14 @@ function startStop() {
             I("startStopBtn").className = "";
             I("server").disabled = false;
             updateUI(true);
+
+
+		   // ✅ Check if everything is zero (server down case)
+			const pingVal = Number(uiData?.pingStatus || 0);
+			const jitterVal = Number(uiData?.jitterStatus || 0);
+			const dlVal = Number(uiData?.dlStatus || 0);
+			const ulVal = Number(uiData?.ulStatus || 0);
+
 
             // ✅ Server down or no data case
             if (!aborted && (!uiData || !uiData.dlStatus)) {
@@ -1195,6 +1139,8 @@ function startStop() {
         };
 
         s.start();
+			checkAllZeroAfterTest();
+
     }
 }
 
@@ -1590,6 +1536,8 @@ function initUI(){
 		Server: 
 		<select id="server" onchange="onServerChange()"></select>
 		<div id="pingResult" style="color: rgb(207, 182, 182); margin-top: 5px;"></div> 
+		<div id="errorMessage" style="margin-top:15px; font-weight:bold; color:red; display:none;"></div>
+
 	</div>
 	
 	<div id="test">
@@ -1708,4 +1656,3 @@ function initUI(){
 </div>
 </body>
 </html>
-
