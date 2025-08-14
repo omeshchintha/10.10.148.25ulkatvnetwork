@@ -800,29 +800,13 @@ function I(i){return document.getElementById(i);}
 
 var SPEEDTEST_SERVERS = [
   {
-    name: "Speedtest Server Side-116",
-    server: "//103.189.178.116:5000/",
+    name: "Main CDN Server",
+    server: "//202.62.66.125/",
     dlURL: "backend/garbage.php",
     ulURL: "backend/empty.php",
     pingURL: "backend/empty.php",
     getIpURL: "backend/getIP.php"
-  },
-    {
-    name: "Giganet IPTV Mumbai",
-    server: "//103.98.7.234/",
-    dlURL: "backend/garbage.php",
-    ulURL: "backend/empty.php",
-    pingURL: "backend/empty.php",
-    getIpURL: "backend/getIP.php"
-  },
-  {
-    name: "Test CDN Server",
-    server: "//202.62.72.222/ulkaspeedtest/",
-    dlURL: "backend/garbage.php",
-    ulURL: "backend/empty.php",
-    pingURL: "backend/empty.php",
-    getIpURL: "backend/getIP.php"
-  },
+  }
 ];
 
 
@@ -841,29 +825,22 @@ function initServers(){
     }
 
     var runServerSelect = function () {
-      const preferredIndex = 1; // 1 for 202.62.72.222
-      const selectedServer = SPEEDTEST_SERVERS[preferredIndex];
+		// Since only one server exists, select it directly
+		s.setSelectedServer(SPEEDTEST_SERVERS[0]);
 
-      // Set the server manually without selectServer() ping logic
-      s.setSelectedServer(selectedServer);
-      I("loading").className = "hidden";
+		// Populate dropdown with only Main CDN Server
+		const option = document.createElement("option");
+		option.value = 0;
+		option.textContent = SPEEDTEST_SERVERS[0].name;
+		option.selected = true;
+		I("server").appendChild(option);
 
-      // populate dropdown
-      for (var i = 0; i < SPEEDTEST_SERVERS.length; i++) {
-        var option = document.createElement("option");
-        option.value = i;
-        option.textContent = SPEEDTEST_SERVERS[i].name;
-        if (i === preferredIndex) option.selected = true;
-        I("server").appendChild(option);
-      }
+		I("loading").className = "hidden";
+		onServerChange();
+		I("testWrapper").className = "visible";
+		initUI();
+	};
 
-      // Set ping result initially
-      onServerChange();
-
-      // Show test UI
-      I("testWrapper").className = "visible";
-      initUI();
-    }
 
     if (typeof SPEEDTEST_SERVERS === "string") {
       s.loadServerList(SPEEDTEST_SERVERS, function (servers) {
@@ -880,23 +857,6 @@ function initServers(){
     }
   }
 }
-
-
-// function checkAllZeroAfterTest() {
-// 	setTimeout(() => {
-// 		const pingValue = parseFloat(document.getElementById("pingText").textContent) || 0;
-// 		const jitterValue = parseFloat(document.getElementById("jitText").textContent) || 0;
-// 		const dlValue = parseFloat(document.getElementById("dlText").textContent) || 0;
-// 		const ulValue = parseFloat(document.getElementById("ulText").textContent) || 0;
-
-// 		if (pingValue === 0 && jitterValue === 0 && dlValue === 0 && ulValue === 0) {
-// 			document.getElementById("errorMessage").textContent = "❌ Connection Failed or Server Down. Try another server.";
-// 			document.getElementById("errorMessage").style.display = "block";
-// 		} else {
-// 			document.getElementById("errorMessage").style.display = "none";
-// 		}
-// 	}, 5000); // 5 seconds delay
-// }
 
 function checkAllZeroAfterTest() {
     setTimeout(() => {
@@ -918,23 +878,6 @@ function checkAllZeroAfterTest() {
         }
     }, 5000); 
 }
-
-// function resetTestState() {
-//     try { stopTest(); } catch(e) {}
-//     document.getElementById("startStopBtn").classList.remove("running");
-
-//     document.getElementById("pingText").textContent = "";
-//     document.getElementById("jitText").textContent = "";
-//     document.getElementById("dlText").textContent = "";
-//     document.getElementById("ulText").textContent = "";
-
-//     // ✅ Reset server dropdown to default
-//     const serverDropdown = document.getElementById("server");
-//     if (serverDropdown.options.length > 0) {
-//         serverDropdown.selectedIndex = 0; // first option as default
-//     }
-// }
-
 
 function resetTestState() {
     try { stopTest(); } catch(e) {}
