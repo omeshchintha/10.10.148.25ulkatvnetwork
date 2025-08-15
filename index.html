@@ -410,7 +410,6 @@
 </html> -->
 
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -438,8 +437,11 @@
   }
   .header p {
     margin: 6px 0 0 0;
-    font-size: 1.95rem;
+    font-size: 1.7rem;
     color: #444;
+    line-height: 1.4;
+    text-align: center;
+    padding: 0 10px;
   }
 
   .container {
@@ -530,6 +532,7 @@
     box-shadow: 0 -4px 8px rgba(0,0,0,0.04);
   }
 
+  /* 📱 Responsive Adjustments */
   @media (max-width: 768px) {
     .container {
       flex-direction: column;
@@ -549,7 +552,19 @@
       height: 70px;
     }
     .header h1 {
-      font-size: 1.25rem;
+      font-size: 1.6rem;
+    }
+    .header p {
+      font-size: 1rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .header h1 {
+      font-size: 1.3rem;
+    }
+    .header p {
+      font-size: 0.95rem;
     }
   }
 </style>
@@ -558,7 +573,7 @@
 
 <div class="header">
   <h1>Speed Test for IPTV Network</h1>
-  <p style="font-size: 1.30rem;">
+  <p>
     This speed test measures IPTV network parameters between interconnected CDN servers.
   </p>
 </div>

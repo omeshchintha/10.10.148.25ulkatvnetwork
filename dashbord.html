@@ -806,7 +806,23 @@ var SPEEDTEST_SERVERS = [
     ulURL: "backend/empty.php",
     pingURL: "backend/empty.php",
     getIpURL: "backend/getIP.php"
-  }
+  },
+    {
+    name: "Giganet IPTV Mumbai",
+    server: "//103.98.7.234/",
+    dlURL: "backend/garbage.php",
+    ulURL: "backend/empty.php",
+    pingURL: "backend/empty.php",
+    getIpURL: "backend/getIP.php"
+  },
+    {
+    name: "103.189.178.116",
+    server: "//103.189.178.116:5000/",
+    dlURL: "backend/garbage.php",
+    ulURL: "backend/empty.php",
+    pingURL: "backend/empty.php",
+    getIpURL: "backend/getIP.php"
+  },
 ];
 
 
@@ -824,23 +840,31 @@ function initServers(){
       I("message").innerHTML = "No servers available";
     }
 
-    var runServerSelect = function () {
-		// Since only one server exists, select it directly
-		s.setSelectedServer(SPEEDTEST_SERVERS[0]);
+    
+	var runServerSelect = function () {
+	const preferredIndex = 0; // ✅ Always pick Main CDN Server first
+	const selectedServer = SPEEDTEST_SERVERS[preferredIndex];
 
-		// Populate dropdown with only Main CDN Server
-		const option = document.createElement("option");
-		option.value = 0;
-		option.textContent = SPEEDTEST_SERVERS[0].name;
-		option.selected = true;
+	// Set the server manually without selectServer() ping logic
+	s.setSelectedServer(selectedServer);
+	I("loading").className = "hidden";
+
+	// populate dropdown
+	for (var i = 0; i < SPEEDTEST_SERVERS.length; i++) {
+		var option = document.createElement("option");
+		option.value = i;
+		option.textContent = SPEEDTEST_SERVERS[i].name;
+		if (i === preferredIndex) option.selected = true;
 		I("server").appendChild(option);
+	}
 
-		I("loading").className = "hidden";
-		onServerChange();
-		I("testWrapper").className = "visible";
-		initUI();
-	};
+	// Set ping result initially
+	onServerChange();
 
+	// Show test UI
+	I("testWrapper").className = "visible";
+	initUI();
+	}
 
     if (typeof SPEEDTEST_SERVERS === "string") {
       s.loadServerList(SPEEDTEST_SERVERS, function (servers) {
@@ -857,6 +881,7 @@ function initServers(){
     }
   }
 }
+
 
 function checkAllZeroAfterTest() {
     setTimeout(() => {
