@@ -799,7 +799,8 @@ function generateUUID() {
 function I(i){return document.getElementById(i);}
 
 var SPEEDTEST_SERVERS = [
-//   {
+
+//    {
 //     name: "Main CDN Server",
 //     server: "//10.10.148.25//",
 //     dlURL: "backend/garbage.php",
@@ -1042,94 +1043,89 @@ function startStop() {
         };
 
         s.onend = function (aborted) {
-            console.log("Test Ended", aborted, uiData);
-            I("startStopBtn").className = "";
-            I("server").disabled = false;
-            updateUI(true);
+			console.log("Test Ended", aborted, uiData);
+			I("startStopBtn").className = "";
+			I("server").disabled = false;
+			updateUI(true);
 
+			if (!aborted && (!uiData || !uiData.dlStatus)) {
+				I("message").textContent = "❌ Server Down — Please select another server.";
+				I("message").style.color = "red";
+				I("shareArea").style.display = "none";
+				return;
+			}
 
-		   // ✅ Check if everything is zero (server down case)
-			const pingVal = Number(uiData?.pingStatus || 0);
-			const jitterVal = Number(uiData?.jitterStatus || 0);
-			const dlVal = Number(uiData?.dlStatus || 0);
-			const ulVal = Number(uiData?.ulStatus || 0);
+			if (!aborted) {
+				let testId, ip, ping, jitter, download, upload, selectedServer;
 
+				try {
+					testId = uiData.testId || generateUUID();
+					ping = format(uiData.pingStatus || 0);
+					jitter = format(uiData.jitterStatus || 0);
+					download = format(uiData.dlStatus || 0);
+					upload = format(uiData.ulStatus || 0);
+					selectedServer = s.getSelectedServer();
 
-            // ✅ Server down or no data case
-            if (!aborted && (!uiData || !uiData.dlStatus)) {
-                I("message").textContent = "❌ Server Down — Please select another server.";
-                I("message").style.color = "red";
-                I("shareArea").style.display = "none";
-                return;
-            }
+					// ✅ Server IP instead of client IP
+					ip = selectedServer.server.replace("http://", "").replace("https://", "").replace(/\/$/, "");
 
-            if (!aborted) {
-                let testId, ip, ping, jitter, download, upload, selectedServer;
+					// UI Display
+					if (testId && testId !== "N/A") {
+						I("testId").textContent = testId;
+					} else {
+						I("testId").parentElement.style.display = "none";
+					}
 
-                try {
-                    testId = uiData.testId || generateUUID();
-                    ip = uiData.clientIp || "N/A";
-                    ping = format(uiData.pingStatus || 0);
-                    jitter = format(uiData.jitterStatus || 0);
-                    download = format(uiData.dlStatus || 0);
-                    upload = format(uiData.ulStatus || 0);
-                    selectedServer = s.getSelectedServer();
+					if (selectedServer) {
+						I("serverUsed").textContent =
+							selectedServer.server.replace("//", "") +
+							" - " +
+							selectedServer.name;
+					}
 
-                    // UI Display
-                    if (testId && testId !== "N/A") {
-                        I("testId").textContent = testId;
-                    } else {
-                        I("testId").parentElement.style.display = "none";
-                    }
+					I("shareIp").textContent = ip;   // ✅ Server IP shown here
+					I("sharePing").textContent = ping;
+					I("shareJitter").textContent = jitter;
+					I("shareDownload").textContent = download;
+					I("shareUpload").textContent = upload;
 
-                    if (selectedServer) {
-                        I("serverUsed").textContent =
-                            selectedServer.server.replace("//", "") +
-                            " - " +
-                            selectedServer.name;
-                    }
+					const now = new Date();
+					I("shareDateTime").textContent = now.toLocaleString();
 
-                    I("shareIp").textContent = ip;
-                    I("sharePing").textContent = ping;
-                    I("shareJitter").textContent = jitter;
-                    I("shareDownload").textContent = download;
-                    I("shareUpload").textContent = upload;
+					I("shareArea").style.display = "";
+				} catch (e) {
+					console.error("Error populating share area:", e);
+					return;
+				}
 
-                    I("shareArea").style.display = "";
+				// ✅ API call: Send to server
+				const payload = {
+					test_id: testId,
+					ip_address: ip,
+					ping,
+					jitter,
+					download_speed: download,
+					upload_speed: upload,
+					server: selectedServer?.name || "Unknown",
+					datetime: new Date().toISOString() // optional: send to backend also
+				};
 
-                } catch (e) {
-                    console.error("Error populating share area:", e);
-                    return; // skip fetch if UI fails
-                }
-
-                // ✅ API call: Send to server
-                const payload = {
-                    test_id: testId,
-                    ip_address: ip,
-                    ping,
-                    jitter,
-                    download_speed: download,
-                    upload_speed: upload,
-                    server: selectedServer?.name || "Unknown"
-                };
-
-                fetch("http://103.98.7.234/backend/save_results.php", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(payload)
-                })
-                    .then((response) => response.json())
-                    .then((data) => {
-                        console.log("Results saved to server:", data);
-                    })
-                    .catch((error) => {
-                        console.error("Saving results failed:", error);
-                    });
-            }
-        };
-
+				fetch("http://103.98.7.234/backend/save_results.php", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify(payload)
+				})
+					.then((response) => response.json())
+					.then((data) => {
+						console.log("Results saved to server:", data);
+					})
+					.catch((error) => {
+						console.error("Saving results failed:", error);
+					});
+			}
+		};
         s.start();
 			checkAllZeroAfterTest();
 
@@ -1579,7 +1575,8 @@ function initUI(){
 			<p><strong>Jitter:</strong> <span id="shareJitter"></span> ms</p>
 			<p><strong>Download Speed:</strong> <span id="shareDownload"></span> Mbps</p>
 			<p><strong>Upload Speed:</strong> <span id="shareUpload"></span> Mbps</p>
-		
+		    <p><strong>Date &amp; Time:</strong> <span id="shareDateTime"></span></p> <!-- ✅ New line -->
+
 			<!-- <p><strong>Sharable Link:</strong></p> -->
 			<!-- <input type="text" value="" id="resultsURL" readonly="readonly" onclick="this.select();document.execCommand('copy');alert('Link copied');" /> -->
 			<!-- <br/> -->
