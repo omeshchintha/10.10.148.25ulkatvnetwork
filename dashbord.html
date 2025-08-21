@@ -1134,17 +1134,32 @@ function startStop() {
 
 //this function reads the data sent back by the test and updates the UI
 function updateUI(forced){
-	if(!forced&&s.getState()!=3) return;
+	if(!forced && s.getState()!=3) return;
 	if(uiData==null) return;
 	var status=uiData.testState;
-	I("ip").textContent=uiData.clientIp;
-	I("dlText").textContent=(status==1&&uiData.dlStatus==0)?"...":format(uiData.dlStatus);
-	drawMeter(I("dlMeter"),mbpsToAmount(Number(uiData.dlStatus*(status==1?oscillate():1))),meterBk,dlColor,Number(uiData.dlProgress),progColor);
-	I("ulText").textContent=(status==3&&uiData.ulStatus==0)?"...":format(uiData.ulStatus);
-	drawMeter(I("ulMeter"),mbpsToAmount(Number(uiData.dlStatus*(status==3?oscillate():1))),meterBk,dlColor,Number(uiData.dlProgress),progColor);
-	I("pingText").textContent=format(uiData.pingStatus);
-	I("jitText").textContent=format(uiData.jitterStatus);
+
+	// ✅ Always show server IP instead of client IP
+	let selectedServer = s.getSelectedServer();
+	if (selectedServer) {
+		let serverIp = selectedServer.server
+			.replace("http://", "")
+			.replace("https://", "")
+			.replace(/\/$/, "");
+		I("ip").textContent = serverIp;
+	} else {
+		I("ip").textContent = "N/A";
+	}
+
+	I("dlText").textContent = (status==1 && uiData.dlStatus==0) ? "..." : format(uiData.dlStatus);
+	drawMeter(I("dlMeter"), mbpsToAmount(Number(uiData.dlStatus*(status==1?oscillate():1))), meterBk, dlColor, Number(uiData.dlProgress), progColor);
+
+	I("ulText").textContent = (status==3 && uiData.ulStatus==0) ? "..." : format(uiData.ulStatus);
+	drawMeter(I("ulMeter"), mbpsToAmount(Number(uiData.dlStatus*(status==3?oscillate():1))), meterBk, dlColor, Number(uiData.dlProgress), progColor);
+
+	I("pingText").textContent = format(uiData.pingStatus);
+	I("jitText").textContent = format(uiData.jitterStatus);
 }
+
 function oscillate(){
 	return 1+0.02*Math.sin(Date.now()/100);
 }

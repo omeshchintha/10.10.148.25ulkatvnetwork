@@ -50,6 +50,19 @@ function getLocalOrPrivateIpInfo($ip){
     return null;
 }
 
+
+
+function getClientPublicIp() {
+    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+        return $_SERVER['HTTP_CLIENT_IP'];
+    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $ipList = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+        return trim($ipList[0]);
+    } else {
+        return $_SERVER['REMOTE_ADDR'];
+    }
+}
+
 function getIspInfo_ipinfoApi($ip){
     if (!file_exists(API_KEY_FILE) || !is_readable(API_KEY_FILE)){
         return null;
@@ -175,7 +188,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0, s-maxage=
 header('Cache-Control: post-check=0, pre-check=0', false);
 header('Pragma: no-cache');
 
-$ip = getClientIp();
+$ip = getClientPublicIp();
 //if the user requested the ISP info, we first try to fetch it using ipinfo.io (if there is no api key set it fails without sending data, it can also fail because of rate limiting or invalid responses), then we try with the offline db, if that also fails (or if ISP info was not requested) we just respond with the IP address
 if(isset($_GET['isp'])){
     $localIpInfo = getLocalOrPrivateIpInfo($ip);
