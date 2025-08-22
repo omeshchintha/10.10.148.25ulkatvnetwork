@@ -777,6 +777,7 @@ function initUI(){
 
 
 
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -785,6 +786,20 @@ function initUI(){
 <meta charset="UTF-8" />
 <script type="text/javascript" src="speedtest.js"></script>
 <script type="text/javascript">
+
+
+
+const currentOrigin = window.location.origin;  
+console.log("✅ Running from:", currentOrigin);
+
+function getServerIp(serverUrl) {
+  return serverUrl
+    .replace("http://", "")
+    .replace("https://", "")
+    .replace("//", "")
+    .replace(/\/$/, ""); // remove trailing slash
+}
+
 
 
 // ✅ Add this function to replace crypto.randomUUID()
@@ -800,14 +815,14 @@ function I(i){return document.getElementById(i);}
 
 var SPEEDTEST_SERVERS = [
 
-//    {
-//     name: "Main CDN Server",
-//     server: "//10.10.148.25//",
-//     dlURL: "backend/garbage.php",
-//     ulURL: "backend/empty.php",
-//     pingURL: "backend/empty.php",
-//     getIpURL: "backend/getIP.php"
-//   },
+   {
+    name: "Main CDN Server",
+    server: "//10.10.148.25//",
+    dlURL: "backend/garbage.php",
+    ulURL: "backend/empty.php",
+    pingURL: "backend/empty.php",
+    getIpURL: "backend/getIP.php"
+  },
     {
     name: "Giganet IPTV Mumbai",
     server: "//103.98.7.234/",
@@ -1069,21 +1084,29 @@ function startStop() {
 					// ✅ Server IP instead of client IP
 					ip = selectedServer.server.replace("http://", "").replace("https://", "").replace(/\/$/, "");
 
-					// UI Display
-					if (testId && testId !== "N/A") {
-						I("testId").textContent = testId;
+					// 🟢 Local vs Server check
+					let hostUsed = "";
+					if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+						hostUsed = "http://localhost/";
 					} else {
-						I("testId").parentElement.style.display = "none";
+						hostUsed = window.location.origin + "/";
 					}
 
+					// 🟢 Show Server Used in results
 					if (selectedServer) {
-						I("serverUsed").textContent =
-							selectedServer.server.replace("//", "") +
-							" - " +
-							selectedServer.name;
+						I("serverUsed").textContent = hostUsed + " - " + selectedServer.name;
 					}
 
-					I("shareIp").textContent = ip;   // ✅ Server IP shown here
+					// 🟢 Show IP in Results box
+					I("shareIp").textContent = ip;   
+
+					// 🟢 Show IP in ipArea box
+					if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+						I("ip").textContent = "Localhost (127.0.0.1)";
+					} else {
+						I("ip").textContent = "Server IP: " + ip;
+					}
+
 					I("sharePing").textContent = ping;
 					I("shareJitter").textContent = jitter;
 					I("shareDownload").textContent = download;
@@ -1098,7 +1121,7 @@ function startStop() {
 					return;
 				}
 
-				// ✅ API call: Send to server
+				// ✅ API call
 				const payload = {
 					test_id: testId,
 					ip_address: ip,
@@ -1107,7 +1130,7 @@ function startStop() {
 					download_speed: download,
 					upload_speed: upload,
 					server: selectedServer?.name || "Unknown",
-					datetime: new Date().toISOString() // optional: send to backend also
+					datetime: new Date().toISOString()
 				};
 
 				fetch("http://103.98.7.234/backend/save_results.php", {
@@ -1126,6 +1149,8 @@ function startStop() {
 					});
 			}
 		};
+
+
         s.start();
 			checkAllZeroAfterTest();
 
@@ -1573,13 +1598,6 @@ function initUI(){
 		<div id="ipArea">
 			<span id="ip"></span>
 		</div>
-		<!-- <div id="shareArea" style="display:none">
-			<h3>Share results</h3>
-			<p>Test ID: <span id="testId"></span></p>
-			<input type="text" value="" id="resultsURL" readonly="readonly" onclick="this.select();this.focus();this.select();document.execCommand('copy');alert('Link copied')"/>
-			<img src="" id="resultsImg" />
-		</div> -->
-
 		<div id="shareArea" style="display:none">
 			<h3>Results</h3>
 			<p><strong>Test ID:</strong> <span id="testId"></span></p>
@@ -1591,13 +1609,7 @@ function initUI(){
 			<p><strong>Download Speed:</strong> <span id="shareDownload"></span> Mbps</p>
 			<p><strong>Upload Speed:</strong> <span id="shareUpload"></span> Mbps</p>
 		    <p><strong>Date &amp; Time:</strong> <span id="shareDateTime"></span></p> <!-- ✅ New line -->
-
-			<!-- <p><strong>Sharable Link:</strong></p> -->
-			<!-- <input type="text" value="" id="resultsURL" readonly="readonly" onclick="this.select();document.execCommand('copy');alert('Link copied');" /> -->
-			<!-- <br/> -->
-			<!-- <img src="" id="resultsImg" /> -->
 		</div>
-		
 	</div>
 
 	<div id="mainContainer" style="display: flex; align-items: flex-start; justify-content: center; flex-wrap: wrap;">
