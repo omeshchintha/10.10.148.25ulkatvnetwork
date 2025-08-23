@@ -788,6 +788,19 @@ function initUI(){
 <script type="text/javascript">
 
 
+function getEffectiveServer(originalServer) {
+  const currentHost = window.location.hostname;
+  if (currentHost === "localhost" || currentHost === "127.0.0.1") {
+    // ✅ Localhost lo run chesthe, requests localhost ki vellali
+    return {
+      ...originalServer,
+      server: "//localhost/",  // all requests localhost lo
+    };
+  } else {
+    // ✅ Server lo run chesthe, original server IP/domain vadali
+    return originalServer;
+  }
+}
 
 const currentOrigin = window.location.origin;  
 console.log("✅ Running from:", currentOrigin);
@@ -798,6 +811,16 @@ function getServerIp(serverUrl) {
     .replace("https://", "")
     .replace("//", "")
     .replace(/\/$/, ""); // remove trailing slash
+}
+
+
+function setInitialIp() {
+    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+        I("ip").textContent = "localhost (127.0.0.1)";
+    } else {
+        // ikkada server ip or domain chupinchali
+        I("ip").textContent = window.location.hostname;
+    }
 }
 
 
@@ -815,14 +838,14 @@ function I(i){return document.getElementById(i);}
 
 var SPEEDTEST_SERVERS = [
 
-   {
-    name: "Main CDN Server",
-    server: "//10.10.148.25//",
-    dlURL: "backend/garbage.php",
-    ulURL: "backend/empty.php",
-    pingURL: "backend/empty.php",
-    getIpURL: "backend/getIP.php"
-  },
+//    {
+//     name: "Main CDN Server",
+//     server: "//10.10.148.25//",
+//     dlURL: "backend/garbage.php",
+//     ulURL: "backend/empty.php",
+//     pingURL: "backend/empty.php",
+//     getIpURL: "backend/getIP.php"
+//   },
     {
     name: "Giganet IPTV Mumbai",
     server: "//103.98.7.234/",
@@ -1048,6 +1071,8 @@ function startStop() {
         I("startStopBtn").className = "running";
         I("shareArea").style.display = "none";
         I("server").disabled = true;
+        
+		setInitialIp();
 
         // Clear old error
         I("message").textContent = "";
@@ -1074,81 +1099,81 @@ function startStop() {
 				let testId, ip, ping, jitter, download, upload, selectedServer;
 
 				try {
-					testId = uiData.testId || generateUUID();
-					ping = format(uiData.pingStatus || 0);
-					jitter = format(uiData.jitterStatus || 0);
-					download = format(uiData.dlStatus || 0);
-					upload = format(uiData.ulStatus || 0);
-					selectedServer = s.getSelectedServer();
+				testId = uiData.testId || generateUUID();
+				ping = format(uiData.pingStatus || 0);
+				jitter = format(uiData.jitterStatus || 0);
+				download = format(uiData.dlStatus || 0);
+				upload = format(uiData.ulStatus || 0);
+				selectedServer = s.getSelectedServer();
 
-					// ✅ Server IP instead of client IP
-					ip = selectedServer.server.replace("http://", "").replace("https://", "").replace(/\/$/, "");
+				// ✅ Server IP instead of client IP
+				ip = selectedServer.server.replace("http://", "").replace("https://", "").replace(/\/$/, "");
 
-					// 🟢 Local vs Server check
-					let hostUsed = "";
-					if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-						hostUsed = "http://localhost/";
-					} else {
-						hostUsed = window.location.origin + "/";
-					}
+				// 🟢 Local vs Server check
+				let hostUsed = "";
+				if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+					hostUsed = "http://localhost/";
+				} else {
+					hostUsed = window.location.origin + "/";
+				}
+				// ✅ ipArea already set at start, so don't overwrite here
 
-					// 🟢 Show Server Used in results
-					if (selectedServer) {
-						I("serverUsed").textContent = hostUsed + " - " + selectedServer.name;
-					}
 
-					// 🟢 Show IP in Results box
-					I("shareIp").textContent = ip;   
-
-					// 🟢 Show IP in ipArea box
-					if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-						I("ip").textContent = "Localhost (127.0.0.1)";
-					} else {
-						I("ip").textContent = "Server IP: " + ip;
-					}
-
-					I("sharePing").textContent = ping;
-					I("shareJitter").textContent = jitter;
-					I("shareDownload").textContent = download;
-					I("shareUpload").textContent = upload;
-
-					const now = new Date();
-					I("shareDateTime").textContent = now.toLocaleString();
-
-					I("shareArea").style.display = "";
-				} catch (e) {
-					console.error("Error populating share area:", e);
-					return;
+				// UI Display
+				if (testId && testId !== "N/A") {
+					I("testId").textContent = testId;
+				} else {
+					I("testId").parentElement.style.display = "none";
 				}
 
-				// ✅ API call
+				if (selectedServer) {
+					I("serverUsed").textContent =
+					hostUsed + " - " + selectedServer.name;
+				}
+
+				I("shareIp").textContent = ip;   // ✅ Server IP in Results area
+				I("sharePing").textContent = ping;
+				I("shareJitter").textContent = jitter;
+				I("shareDownload").textContent = download;
+				I("shareUpload").textContent = upload;
+
+				const now = new Date();
+				I("shareDateTime").textContent = now.toLocaleString();
+
+				I("shareArea").style.display = "";
+				} catch (e) {
+				console.error("Error populating share area:", e);
+				return;
+				}
+
+				// ✅ API call remains same
 				const payload = {
-					test_id: testId,
-					ip_address: ip,
-					ping,
-					jitter,
-					download_speed: download,
-					upload_speed: upload,
-					server: selectedServer?.name || "Unknown",
-					datetime: new Date().toISOString()
+				test_id: testId,
+				ip_address: ip,
+				ping,
+				jitter,
+				download_speed: download,
+				upload_speed: upload,
+				server: selectedServer?.name || "Unknown",
+				datetime: new Date().toISOString()
 				};
 
 				fetch("http://103.98.7.234/backend/save_results.php", {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json"
-					},
-					body: JSON.stringify(payload)
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify(payload)
 				})
-					.then((response) => response.json())
-					.then((data) => {
-						console.log("Results saved to server:", data);
-					})
-					.catch((error) => {
-						console.error("Saving results failed:", error);
-					});
+				.then((response) => response.json())
+				.then((data) => {
+					console.log("Results saved to server:", data);
+				})
+				.catch((error) => {
+					console.error("Saving results failed:", error);
+				});
 			}
-		};
+			};
 
 
         s.start();
@@ -1164,16 +1189,16 @@ function updateUI(forced){
 	var status=uiData.testState;
 
 	// ✅ Always show server IP instead of client IP
-	let selectedServer = s.getSelectedServer();
-	if (selectedServer) {
-		let serverIp = selectedServer.server
-			.replace("http://", "")
-			.replace("https://", "")
-			.replace(/\/$/, "");
-		I("ip").textContent = serverIp;
-	} else {
-		I("ip").textContent = "N/A";
-	}
+	// let selectedServer = s.getSelectedServer();
+	// if (selectedServer) {
+	// 	let serverIp = selectedServer.server
+	// 		.replace("http://", "")
+	// 		.replace("https://", "")
+	// 		.replace(/\/$/, "");
+	// 	I("ip").textContent = serverIp;
+	// } else {
+	// 	I("ip").textContent = "N/A";
+	// }
 
 	I("dlText").textContent = (status==1 && uiData.dlStatus==0) ? "..." : format(uiData.dlStatus);
 	drawMeter(I("dlMeter"), mbpsToAmount(Number(uiData.dlStatus*(status==1?oscillate():1))), meterBk, dlColor, Number(uiData.dlProgress), progColor);
