@@ -53,6 +53,31 @@ function Speedtest() {
   );
 }
 
+function pingServer(server) {
+  return fetch("/ping?url=" + encodeURIComponent(server.pingURL))
+    .then(res => res.json())
+    .then(data => {
+      console.log("Ping result from MainCDNServers:", data);
+      return data;
+    });
+}
+
+
+function isAllowedClient() {
+  // Allowed client only = 10.10.148.25
+  return window.location.hostname === "10.10.148.25";
+}
+
+function getServerUsed(ip) {
+  if (!isAllowedClient()) {
+    alert("Access restricted! Tests are allowed only from 10.10.148.25 server.");
+    return null; 
+  }
+
+  // ippudu normal logic run avvachu
+  return SPEEDTEST_SERVERS[0];
+}
+
 Speedtest.prototype = {
   constructor: Speedtest,
   /**

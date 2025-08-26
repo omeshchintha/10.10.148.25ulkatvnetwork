@@ -787,20 +787,29 @@ function initUI(){
 <script type="text/javascript" src="speedtest.js"></script>
 <script type="text/javascript">
 
+  window.onload = () => {
+    setInitialIp();  // page load avvagane IP display
+    initServers();   // normal speedtest server init
+  };
+
 
 function getEffectiveServer(originalServer) {
-  const currentHost = window.location.hostname;
-  if (currentHost === "localhost" || currentHost === "127.0.0.1") {
-    // ✅ Localhost lo run chesthe, requests localhost ki vellali
-    return {
-      ...originalServer,
-      server: "//localhost/",  // all requests localhost lo
-    };
-  } else {
-    // ✅ Server lo run chesthe, original server IP/domain vadali
-    return originalServer;
-  }
+  return originalServer; // localhost override remove
 }
+
+// function getEffectiveServer(originalServer) {
+//   const currentHost = window.location.hostname;
+//   if (currentHost === "localhost" || currentHost === "127.0.0.1") {
+//     // ✅ Localhost lo run chesthe, requests localhost ki vellali
+//     return {
+//       ...originalServer,
+//       server: "//localhost/",  // all requests localhost lo
+//     };
+//   } else {
+//     // ✅ Server lo run chesthe, original server IP/domain vadali
+//     return originalServer;
+//   }
+// }
 
 const currentOrigin = window.location.origin;  
 console.log("✅ Running from:", currentOrigin);
@@ -814,15 +823,22 @@ function getServerIp(serverUrl) {
 }
 
 
-function setInitialIp() {
-    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-        I("ip").textContent = "localhost (127.0.0.1)";
-    } else {
-        // ikkada server ip or domain chupinchali
-        I("ip").textContent = window.location.hostname;
+async function setInitialIp() {
+  if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+    // ✅ Local run
+    I("ip").textContent = "localhost (127.0.0.1)";
+  } else {
+    // ✅ Server run → backend/getServerIP.php nundi fetch cheyyali
+    try {
+      const res = await fetch("backend/getServerIP.php");
+      const serverIp = await res.text();
+      I("ip").textContent = serverIp;  // ✅ Actual server IP (e.g., 10.10.148.25)
+    } catch (e) {
+      console.error("IP fetch failed:", e);
+      I("ip").textContent = window.location.hostname; // fallback
     }
+  }
 }
-
 
 
 // ✅ Add this function to replace crypto.randomUUID()
@@ -838,14 +854,14 @@ function I(i){return document.getElementById(i);}
 
 var SPEEDTEST_SERVERS = [
 
-//    {
-//     name: "Main CDN Server",
-//     server: "//10.10.148.25//",
-//     dlURL: "backend/garbage.php",
-//     ulURL: "backend/empty.php",
-//     pingURL: "backend/empty.php",
-//     getIpURL: "backend/getIP.php"
-//   },
+   {
+    name: "Main CDN Server",
+    server: "//10.10.148.25//",
+    dlURL: "backend/garbage.php",
+    ulURL: "backend/empty.php",
+    pingURL: "backend/empty.php",
+    getIpURL: "backend/getIP.php"
+  },
     {
     name: "Giganet IPTV Mumbai",
     server: "//103.98.7.234/",
@@ -891,6 +907,7 @@ var SPEEDTEST_SERVERS = [
 
 var s=new Speedtest(); //create speed test object
 s.setParameter("telemetry_level","basic"); //enable basic telemetry (for results sharing)
+
 
 function initServers(){
   if (SPEEDTEST_SERVERS.length == 0) {
@@ -989,24 +1006,22 @@ function resetTestState() {
 function onServerChange() {
     const selectedIndex = document.getElementById("server").value;
     const selectedServer = SPEEDTEST_SERVERS[selectedIndex];
-    const pingURL = (location.protocol === "https:" ? "https:" : "http:") + selectedServer.server + selectedServer.pingURL;
+
+    // ✅ Absolute URL from Main CDN Server
+    const pingURL = `http://10.10.148.25/${selectedServer.pingURL}?target=${getServerIp(selectedServer.server)}/backend/empty.php&t=${Math.random()}`;
 
     // Reset old messages
     document.getElementById("pingResult").textContent = "";
     document.getElementById("message").textContent = "";
     document.getElementById("message").style.color = "";
 
-    const pingStart = performance.now();
-    fetch(pingURL + "?t=" + Math.random(), { method: "GET", cache: "no-cache" })
+    fetch(pingURL, { method: "GET", cache: "no-cache" })
         .then(() => {
-            const pingEnd = performance.now();
-            const pingTime = Math.round(pingEnd - pingStart);
             document.getElementById("startStopBtn").disabled = false;
         })
         .catch(() => {
-            document.getElementById("message").textContent = "❌ Server Down — Please select another server.";
+            // document.getElementById("message").textContent = "❌ Server Down — Please select another server.";
             document.getElementById("message").style.color = "red";
-
             document.getElementById("startStopBtn").disabled = true;
         });
 
@@ -1148,22 +1163,23 @@ function startStop() {
 
 				// ✅ API call remains same
 				const payload = {
-				test_id: testId,
-				ip_address: ip,
-				ping,
-				jitter,
-				download_speed: download,
-				upload_speed: upload,
-				server: selectedServer?.name || "Unknown",
-				datetime: new Date().toISOString()
+					test_id: testId,
+					ip_address: ip,
+					ping,
+					jitter,
+					download_speed: download,
+					upload_speed: upload,
+					server: selectedServer?.name || "Unknown",
+					datetime: new Date().toISOString()
 				};
 
-				fetch("http://103.98.7.234/backend/save_results.php", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json"
-				},
-				body: JSON.stringify(payload)
+				// ✅ Save results to Main CDN server
+				fetch("http://10.10.148.25/backend/save_results.php", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify(payload)
 				})
 				.then((response) => response.json())
 				.then((data) => {
@@ -1172,6 +1188,7 @@ function startStop() {
 				.catch((error) => {
 					console.error("Saving results failed:", error);
 				});
+
 			}
 			};
 
