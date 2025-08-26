@@ -1,0 +1,17 @@
+<Files "garbage.php">
+    Order Deny,Allow
+    Deny from all
+    Allow from 10.10.148.25
+</Files>
+
+<Files "empty.php">
+    Order Deny,Allow
+    Deny from all
+    Allow from 10.10.148.25
+</Files>
+
+<Files "getIP.php">
+    Order Deny,Allow
+    Deny from all
+    Allow from 10.10.148.25
+</Files>

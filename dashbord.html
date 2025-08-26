@@ -788,28 +788,14 @@ function initUI(){
 <script type="text/javascript">
 
   window.onload = () => {
-    setInitialIp();  // page load avvagane IP display
-    initServers();   // normal speedtest server init
+    setInitialIp();
+    initServers();
   };
 
 
 function getEffectiveServer(originalServer) {
-  return originalServer; // localhost override remove
+  return originalServer;
 }
-
-// function getEffectiveServer(originalServer) {
-//   const currentHost = window.location.hostname;
-//   if (currentHost === "localhost" || currentHost === "127.0.0.1") {
-//     // ✅ Localhost lo run chesthe, requests localhost ki vellali
-//     return {
-//       ...originalServer,
-//       server: "//localhost/",  // all requests localhost lo
-//     };
-//   } else {
-//     // ✅ Server lo run chesthe, original server IP/domain vadali
-//     return originalServer;
-//   }
-// }
 
 const currentOrigin = window.location.origin;  
 console.log("✅ Running from:", currentOrigin);
@@ -819,7 +805,7 @@ function getServerIp(serverUrl) {
     .replace("http://", "")
     .replace("https://", "")
     .replace("//", "")
-    .replace(/\/$/, ""); // remove trailing slash
+    .replace(/\/$/, "");
 }
 
 
@@ -841,7 +827,6 @@ async function setInitialIp() {
 }
 
 
-// ✅ Add this function to replace crypto.randomUUID()
 function generateUUID() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
     const r = Math.random() * 16 | 0;
@@ -856,7 +841,7 @@ var SPEEDTEST_SERVERS = [
 
    {
     name: "Main CDN Server",
-    server: "//10.10.148.25//",
+    server: "http://10.10.148.25:80/",   // correct format
     dlURL: "backend/garbage.php",
     ulURL: "backend/empty.php",
     pingURL: "backend/empty.php",
@@ -903,6 +888,41 @@ var SPEEDTEST_SERVERS = [
     getIpURL: "backend/getIP.php"
   },
 ];
+
+
+
+// ✅ Add ping() function here
+async function ping(server) {
+  try {
+    const start = performance.now();
+    const response = await fetch(server.pingURL, { method: "GET" });
+
+    if (!response.ok) {
+      throw new Error("Ping failed with status " + response.status);
+    }
+
+    await response.text(); // empty.php returns nothing but OK
+    const end = performance.now();
+
+    const latency = Math.round(end - start);
+    console.log(`Ping to ${server.name} successful: ${latency}ms`);
+    return { server: server.name, latency };
+  } catch (error) {
+    console.error(`Ping to ${server.name} failed:`, error.message);
+    return { server: server.name, latency: null, error: error.message };
+  }
+}
+
+// ✅ Example: call for all servers
+async function testAllServers() {
+  for (const server of SPEEDTEST_SERVERS) {
+    await ping(server);
+  }
+}
+
+// Call before starting test
+testAllServers();
+
 
 
 var s=new Speedtest(); //create speed test object
@@ -1004,29 +1024,26 @@ function resetTestState() {
 }
 
 function onServerChange() {
-    const selectedIndex = document.getElementById("server").value;
-    const selectedServer = SPEEDTEST_SERVERS[selectedIndex];
+  const selectedIndex = document.getElementById("server").value;
+  const selectedServer = SPEEDTEST_SERVERS[selectedIndex];
 
-    // ✅ Absolute URL from Main CDN Server
-    const pingURL = `http://10.10.148.25/${selectedServer.pingURL}?target=${getServerIp(selectedServer.server)}/backend/empty.php&t=${Math.random()}`;
+  // Always hit Main CDN to check latency
+  const pingURL = `http://10.10.148.25/backend/empty.php?target=${getServerIp(selectedServer.server)}&t=${Math.random()}`;
 
-    // Reset old messages
-    document.getElementById("pingResult").textContent = "";
-    document.getElementById("message").textContent = "";
-    document.getElementById("message").style.color = "";
+  fetch(pingURL, { method: "GET", cache: "no-cache" })
+    .then(() => {
+      document.getElementById("startStopBtn").disabled = false;
+      console.log(`✅ ${selectedServer.name} reachable through Main CDN`);
+    })
+    .catch(() => {
+      document.getElementById("message").textContent = "❌ Server Down — Please select another server.";
+      document.getElementById("message").style.color = "red";
+      document.getElementById("startStopBtn").disabled = true;
+    });
 
-    fetch(pingURL, { method: "GET", cache: "no-cache" })
-        .then(() => {
-            document.getElementById("startStopBtn").disabled = false;
-        })
-        .catch(() => {
-            // document.getElementById("message").textContent = "❌ Server Down — Please select another server.";
-            document.getElementById("message").style.color = "red";
-            document.getElementById("startStopBtn").disabled = true;
-        });
-
-    s.setSelectedServer(selectedServer);
+  s.setSelectedServer(selectedServer);
 }
+
 
 var meterBk=/Trident.*rv:(\d+\.\d+)/i.test(navigator.userAgent)?"#EAEAEA":"#80808040";
 var dlColor="#6060AA",
