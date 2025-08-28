@@ -43,6 +43,50 @@
     - 4: test finished. You can run it again by calling start() if you want.
  */
 
+var SPEEDTEST_SERVERS = [
+    {
+        name: "Giganet IPTV Mumbai",
+        server: "//103.98.7.234/",
+        dlURL: "backend/garbage.php",
+        ulURL: "backend/empty.php",
+        pingURL: "backend/empty.php",
+        getIpURL: "backend/getIP.php"
+    },
+    {
+        name: "VijayWada Bsnl",
+        server: "//192.168.80.2/",
+        dlURL: "backend/garbage.php",
+        ulURL: "backend/empty.php",
+        pingURL: "backend/empty.php",
+        getIpURL: "backend/getIP.php"
+    },
+    {
+        name: "BSNL HYDERABAD",
+        server: "//192.168.80.50/",
+        dlURL: "backend/garbage.php",
+        ulURL: "backend/empty.php",
+        pingURL: "backend/empty.php",
+        getIpURL: "backend/getIP.php"
+    },
+    {
+        name: "RailTel Kolkata",
+        server: "//172.26.147.14/",
+        dlURL: "backend/garbage.php",
+        ulURL: "backend/empty.php",
+        pingURL: "backend/empty.php",
+        getIpURL: "backend/getIP.php"
+    },
+    {
+        name: "RailTel Bhubaneswar",
+        server: "//172.26.147.46/",
+        dlURL: "backend/garbage.php",
+        ulURL: "backend/empty.php",
+        pingURL: "backend/empty.php",
+        getIpURL: "backend/getIP.php"
+    }
+];
+
+    
 function Speedtest() {
   this._serverList = []; //when using multiple points of test, this is a list of test points
   this._selectedServer = null; //when using multiple points of test, this is the selected server

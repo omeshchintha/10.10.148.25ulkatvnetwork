@@ -837,91 +837,82 @@ function generateUUID() {
 
 function I(i){return document.getElementById(i);}
 
-var SPEEDTEST_SERVERS = [
+// var SPEEDTEST_SERVERS = [
 
-//    {
-//     name: "Main CDN Server",
-//     server: "http://10.10.148.25:80/",   // correct format
+// //    {
+// //     name: "Main CDN Server",
+// //     server: "http://10.10.148.25:80/",   // correct format
+// //     dlURL: "backend/garbage.php",
+// //     ulURL: "backend/empty.php",
+// //     pingURL: "backend/empty.php",
+// //     getIpURL: "backend/getIP.php"
+// //   },
+//     {
+//     name: "Giganet IPTV Mumbai",
+//     server: "//103.98.7.234/",
 //     dlURL: "backend/garbage.php",
 //     ulURL: "backend/empty.php",
 //     pingURL: "backend/empty.php",
 //     getIpURL: "backend/getIP.php"
 //   },
-    {
-    name: "Giganet IPTV Mumbai",
-    server: "//103.98.7.234/",
-    dlURL: "backend/garbage.php",
-    ulURL: "backend/empty.php",
-    pingURL: "backend/empty.php",
-    getIpURL: "backend/getIP.php"
-  },
-    {
-    name: "VijayWada Bsnl",
-    server: "//192.168.80.2/",
-    dlURL: "backend/garbage.php",
-    ulURL: "backend/empty.php",
-    pingURL: "backend/empty.php",
-    getIpURL: "backend/getIP.php"
-  },
-   {
-    name: "BSNL HYDERABAD",
-    server: "//192.168.80.50/",
-    dlURL: "backend/garbage.php",
-    ulURL: "backend/empty.php",
-    pingURL: "backend/empty.php",
-    getIpURL: "backend/getIP.php"
-  },
-    {
-    name: "RailTel Kolkata",
-    server: "//172.26.147.14/",
-    dlURL: "backend/garbage.php",
-    ulURL: "backend/empty.php",
-    pingURL: "backend/empty.php",
-    getIpURL: "backend/getIP.php"
-  },
-   {
-    name: "RailTel Bhubaneswar",
-    server: "//172.26.147.46/",
-    dlURL: "backend/garbage.php",
-    ulURL: "backend/empty.php",
-    pingURL: "backend/empty.php",
-    getIpURL: "backend/getIP.php"
-  },
-];
-
-
+//     {
+//     name: "VijayWada Bsnl",
+//     server: "//192.168.80.2/",
+//     dlURL: "backend/garbage.php",
+//     ulURL: "backend/empty.php",
+//     pingURL: "backend/empty.php",
+//     getIpURL: "backend/getIP.php"
+//   },
+//    {
+//     name: "BSNL HYDERABAD",
+//     server: "//192.168.80.50/",
+//     dlURL: "backend/garbage.php",
+//     ulURL: "backend/empty.php",
+//     pingURL: "backend/empty.php",
+//     getIpURL: "backend/getIP.php"
+//   },
+//     {
+//     name: "RailTel Kolkata",
+//     server: "//172.26.147.14/",
+//     dlURL: "backend/garbage.php",
+//     ulURL: "backend/empty.php",
+//     pingURL: "backend/empty.php",
+//     getIpURL: "backend/getIP.php"
+//   },
+//    {
+//     name: "RailTel Bhubaneswar",
+//     server: "//172.26.147.46/",
+//     dlURL: "backend/garbage.php",
+//     ulURL: "backend/empty.php",
+//     pingURL: "backend/empty.php",
+//     getIpURL: "backend/getIP.php"
+//   },
+// ];
 
 // ✅ Add ping() function here
-async function ping(server) {
+async function testPing(server) {
   try {
     const start = performance.now();
-    const response = await fetch(server.pingURL, { method: "GET" });
-
-    if (!response.ok) {
-      throw new Error("Ping failed with status " + response.status);
-    }
-
-    await response.text(); // empty.php returns nothing but OK
+    const res = await fetch(server.server + server.pingURL + "?r=" + Math.random(), { cache: "no-store" });
+    await res.text(); // ignore content, just to complete request
     const end = performance.now();
-
-    const latency = Math.round(end - start);
-    console.log(`Ping to ${server.name} successful: ${latency}ms`);
-    return { server: server.name, latency };
-  } catch (error) {
-    console.error(`Ping to ${server.name} failed:`, error.message);
-    return { server: server.name, latency: null, error: error.message };
+    console.log(`Ping to ${server.name}: ${Math.round(end - start)} ms`);
+  } catch (e) {
+    console.error("Ping failed:", e);
   }
 }
 
-// ✅ Example: call for all servers
+
 async function testAllServers() {
   for (const server of SPEEDTEST_SERVERS) {
-    await ping(server);
+    await testPing(server);  // ✅ correct function call
   }
 }
+
 
 // Call before starting test
 testAllServers();
+testPing(SPEEDTEST_SERVERS[0]); // ✅ Main CDN server test
 
 
 
