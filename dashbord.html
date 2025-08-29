@@ -793,6 +793,27 @@ function initUI(){
   };
 
 
+
+function testPing(targetIp) {
+  fetch(`/backend/ping_server.php?target=${targetIp}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === "ok") {
+        document.getElementById("message").textContent =
+          `✅ Ping to ${data.target}: ${data.avg_ms} ms`;
+        document.getElementById("message").style.color = "green";
+      } else {
+        document.getElementById("message").textContent =
+          `❌ ${data.target} unreachable`;
+        document.getElementById("message").style.color = "red";
+      }
+    })
+    .catch(err => {
+      document.getElementById("message").textContent = "⚠️ Ping request failed";
+      document.getElementById("message").style.color = "orange";
+    });
+}
+
 function getEffectiveServer(originalServer) {
   return originalServer;
 }
@@ -811,18 +832,11 @@ function getServerIp(serverUrl) {
 
 async function setInitialIp() {
   if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-    // ✅ Local run
+    // Local development run
     I("ip").textContent = "localhost (127.0.0.1)";
   } else {
-    // ✅ Server run → backend/getServerIP.php nundi fetch cheyyali
-    try {
-      const res = await fetch("backend/getServerIP.php");
-      const serverIp = await res.text();
-      I("ip").textContent = serverIp;  // ✅ Actual server IP (e.g., 10.10.148.25)
-    } catch (e) {
-      console.error("IP fetch failed:", e);
-      I("ip").textContent = window.location.hostname; // fallback
-    }
+    // ✅ Production లో ఎప్పుడూ hosting server IP చూపించాలి
+    I("ip").textContent = "10.10.148.25";  
   }
 }
 
@@ -837,57 +851,57 @@ function generateUUID() {
 
 function I(i){return document.getElementById(i);}
 
-// var SPEEDTEST_SERVERS = [
+var SPEEDTEST_SERVERS = [
 
-// //    {
-// //     name: "Main CDN Server",
-// //     server: "http://10.10.148.25:80/",   // correct format
-// //     dlURL: "backend/garbage.php",
-// //     ulURL: "backend/empty.php",
-// //     pingURL: "backend/empty.php",
-// //     getIpURL: "backend/getIP.php"
-// //   },
-//     {
-//     name: "Giganet IPTV Mumbai",
-//     server: "//103.98.7.234/",
-//     dlURL: "backend/garbage.php",
-//     ulURL: "backend/empty.php",
-//     pingURL: "backend/empty.php",
-//     getIpURL: "backend/getIP.php"
-//   },
-//     {
-//     name: "VijayWada Bsnl",
-//     server: "//192.168.80.2/",
-//     dlURL: "backend/garbage.php",
-//     ulURL: "backend/empty.php",
-//     pingURL: "backend/empty.php",
-//     getIpURL: "backend/getIP.php"
-//   },
 //    {
-//     name: "BSNL HYDERABAD",
-//     server: "//192.168.80.50/",
+//     name: "Main CDN Server",
+//     server: "http://10.10.148.25:80/",   // correct format
 //     dlURL: "backend/garbage.php",
 //     ulURL: "backend/empty.php",
 //     pingURL: "backend/empty.php",
 //     getIpURL: "backend/getIP.php"
 //   },
-//     {
-//     name: "RailTel Kolkata",
-//     server: "//172.26.147.14/",
-//     dlURL: "backend/garbage.php",
-//     ulURL: "backend/empty.php",
-//     pingURL: "backend/empty.php",
-//     getIpURL: "backend/getIP.php"
-//   },
-//    {
-//     name: "RailTel Bhubaneswar",
-//     server: "//172.26.147.46/",
-//     dlURL: "backend/garbage.php",
-//     ulURL: "backend/empty.php",
-//     pingURL: "backend/empty.php",
-//     getIpURL: "backend/getIP.php"
-//   },
-// ];
+    {
+    name: "Giganet IPTV Mumbai",
+    server: "//103.98.7.234/",
+    dlURL: "backend/garbage.php",
+    ulURL: "backend/empty.php",
+    pingURL: "backend/empty.php",
+    getIpURL: "backend/getIP.php"
+  },
+    {
+    name: "VijayWada Bsnl",
+    server: "//192.168.80.2/",
+    dlURL: "backend/garbage.php",
+    ulURL: "backend/empty.php",
+    pingURL: "backend/empty.php",
+    getIpURL: "backend/getIP.php"
+  },
+   {
+    name: "BSNL HYDERABAD",
+    server: "//192.168.80.50/",
+    dlURL: "backend/garbage.php",
+    ulURL: "backend/empty.php",
+    pingURL: "backend/empty.php",
+    getIpURL: "backend/getIP.php"
+  },
+    {
+    name: "RailTel Kolkata",
+    server: "//172.26.147.14/",
+    dlURL: "backend/garbage.php",
+    ulURL: "backend/empty.php",
+    pingURL: "backend/empty.php",
+    getIpURL: "backend/getIP.php"
+  },
+   {
+    name: "RailTel Bhubaneswar",
+    server: "//172.26.147.46/",
+    dlURL: "backend/garbage.php",
+    ulURL: "backend/empty.php",
+    pingURL: "backend/empty.php",
+    getIpURL: "backend/getIP.php"
+  },
+];
 
 // ✅ Add ping() function here
 async function testPing(server) {
@@ -995,6 +1009,18 @@ function checkAllZeroAfterTest() {
     }, 5000); 
 }
 
+
+function checkClientPings() {
+  fetch("http://10.10.148.25/backend/ping_clients.php")
+    .then(res => res.json())
+    .then(data => {
+      console.log("Client Ping Results:", data);
+      alert(JSON.stringify(data, null, 2));
+    })
+    .catch(err => console.error("Ping check failed:", err));
+}
+
+
 function resetTestState() {
     try { stopTest(); } catch(e) {}
     document.getElementById("startStopBtn").classList.remove("running");
@@ -1017,22 +1043,42 @@ function resetTestState() {
 function onServerChange() {
   const selectedIndex = document.getElementById("server").value;
   const selectedServer = SPEEDTEST_SERVERS[selectedIndex];
+  const serverIp = getServerIp(selectedServer.server); // direct IP
 
   // Always hit Main CDN to check latency
-  const pingURL = `http://10.10.148.25/backend/empty.php?target=${getServerIp(selectedServer.server)}&t=${Math.random()}`;
+  const pingURL = `http://10.10.148.25/backend/ping_server.php?target=${serverIp}&t=${Math.random()}`;
 
   fetch(pingURL, { method: "GET", cache: "no-cache" })
-    .then(() => {
-      document.getElementById("startStopBtn").disabled = false;
-      console.log(`✅ ${selectedServer.name} reachable through Main CDN`);
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === "ok") {
+        document.getElementById("startStopBtn").disabled = false;
+        document.getElementById("ip").textContent = serverIp;
+
+        document.getElementById("message").textContent =
+          `✅ ${selectedServer.name} reachable, avg ${data.avg_ms} ms`;
+        document.getElementById("message").style.color = "green";
+
+        console.log(`✅ ${selectedServer.name} reachable through Main CDN`);
+      } else {
+        document.getElementById("message").textContent =
+          `❌ ${selectedServer.name} unreachable`;
+        document.getElementById("message").style.color = "red";
+        document.getElementById("startStopBtn").disabled = true;
+      }
     })
     .catch(() => {
-      document.getElementById("message").textContent = "❌ Server Down — Please select another server.";
-      document.getElementById("message").style.color = "red";
+      document.getElementById("message").textContent =
+        "⚠️ Ping request failed — check backend.";
+      document.getElementById("message").style.color = "orange";
       document.getElementById("startStopBtn").disabled = true;
     });
 
+  // Speedtest.js lo server select cheyadam
   s.setSelectedServer(selectedServer);
+
+  // Extra ping test
+  testPing(serverIp);
 }
 
 
