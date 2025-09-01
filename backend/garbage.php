@@ -13,6 +13,31 @@ header('Access-Control-Allow-Headers: Content-Encoding, Content-Type');
 /**
  * @return int
  */
+
+
+function testDownloadSpeed($url) {
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+
+    $start = microtime(true);
+    $data = curl_exec($ch);
+    $end = microtime(true);
+
+    if (curl_errno($ch)) {
+        curl_close($ch);
+        return 0;
+    }
+    curl_close($ch);
+
+    $size = strlen($data) / (1024 * 1024); // MB
+    $time = $end - $start;
+    if ($time <= 0) return 0;
+
+    return round(($size * 8) / $time, 2); // Mbps
+}
+
 function getChunkCount()
 {
     if (
