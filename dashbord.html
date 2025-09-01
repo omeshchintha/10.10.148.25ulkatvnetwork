@@ -1844,16 +1844,24 @@ function getServerIp(serverUrl) {
 }
 
 
+// async function setInitialIp() {
+//   if (window.location.hostname === "localhost" || window.location.hostname === "10.10.148.25") {
+//     // Local development run
+//     I("ip").textContent = "localhost (127.0.0.1)";
+//   } else {
+//     // ✅ Production లో ఎప్పుడూ hosting server IP చూపించాలి
+//     I("ip").textContent = "10.10.148.25";  
+//   }
+// }
+
+
 async function setInitialIp() {
-  if (window.location.hostname === "10.10.148.25" || window.location.hostname === "10.10.148.25") {
-    // Local development run
+  if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
     I("ip").textContent = "localhost (127.0.0.1)";
   } else {
-    // ✅ Production లో ఎప్పుడూ hosting server IP చూపించాలి
     I("ip").textContent = "10.10.148.25";  
   }
 }
-
 
 function generateUUID() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -2411,32 +2419,33 @@ function initUI(){
 		100%{transform:rotate(359deg);}
 	}
 	#startStopBtn{
-		display:inline-block;
-		margin:0 auto;
-		color:#fdf7f7; /* ✅ Optional: black text for contrast */
-		background-color:#ee4f57; /* ✅ White background */
-		border:0.15em solid #f5f5fb;
-		border-radius:0.3em;
-		transition:all 0.3s;
-		box-sizing:border-box;
-		width:8em; height:3em;
-		line-height:2.7em;
-		cursor:pointer;
-		box-shadow: 0 0 0 rgba(242, 245, 243, 0.1), inset 0 0 0 rgba(241, 238, 238, 0.1);
-	}
-	#startStopBtn:hover{
-		box-shadow: 0 0 2em rgba(237, 240, 239, 0.1), inset 0 0 1em rgba(248, 247, 247, 0.1);
-	}
-	#startStopBtn.running{
-		background-color:#7df479;
-		border-color:#9af295;
-		color:#FFFFFF;
-	}
-	#startStopBtn:before{
-		content:"Start";
-	}
-	#startStopBtn.running:before{
-		content:"Abort";
+    display:inline-block;
+    color:#fdf7f7;
+    background-color:#ee4f57;
+    border:0.15em solid #f5f5fb;
+    border-radius:0.3em;
+    transition:all 0.3s;
+    box-sizing:border-box;
+    width:6em; height:2em;
+    line-height:1.8em;
+    cursor:pointer;
+    text-align:center;
+}
+#startStopBtn:hover{
+    box-shadow: 0 0 2em rgba(237, 240, 239, 0.1), inset 0 0 1em rgba(248, 247, 247, 0.1);
+}
+#startStopBtn.running{
+    background-color:#7df479;
+    border-color:#9af295;
+    color:#FFFFFF;
+}
+#startStopBtn:before{
+    content:"Start";
+}
+#startStopBtn.running:before{
+    content:"Abort";
+
+
 	}
 	
 	#serverArea{
@@ -2714,14 +2723,25 @@ function initUI(){
 		<p id="message"><span class="loadCircle"></span>Selecting a server...</p>
 	</div>
 	<div id="testWrapper" class="hidden">
-		<div id="startStopBtn" onclick="startStop()"></div><br/>
 		<a class="privacy" href="#" onclick="I('privacyPolicy').style.display=''">Privacy</a>
-		<div id="serverArea">
-			Server: 
-			<select id="server" onchange="onServerChange()"></select>
-			<div id="pingResult" style="color: rgb(207, 182, 182); margin-top: 5px;"></div> 
-			<div id="errorMessage" style="margin-top:15px; font-weight:bold; color:red; display:none;"></div>
+
+		<!-- ✅ Flexbox container for Server + Start button (center aligned) -->
+		<div id="serverArea" 
+			style="display:flex; justify-content:center; align-items:center; gap:15px; margin-top:20px;">
+			
+			<label for="server" style="font-weight:bold;">Server:</label>
+			<select id="server" onchange="onServerChange()" style="padding:5px; font-size:14px;"></select>
+
+			<!-- ✅ Start Button next to Server -->
+			<div id="startStopBtn" onclick="startStop()"></div>
 		</div>
+
+		<div id="pingResult" style="color: rgb(207, 182, 182); margin-top: 5px; text-align:center;"></div> 
+		<div id="errorMessage" style="margin-top:15px; font-weight:bold; color:red; display:none; text-align:center;"></div>
+	</div>
+
+
+
 
 		<!-- ✅ Server-to-Server Ping Section -->
 		<div id="serverToServerArea" style="margin-top:30px;">
