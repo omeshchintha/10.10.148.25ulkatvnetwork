@@ -1730,7 +1730,7 @@ function initUI(){
   };
   
 function testPing(targetIp) {
-   fetch("http://10.10.148.25/ping_server_to_server.php?to=103.98.7.234")
+   fetch("http://192.168.12.103/ping_server_to_server.php?to=103.98.7.234")
     .then(res => res.json())
     .then(data => {
       if (data.status === "ok") {
@@ -1859,7 +1859,7 @@ async function setInitialIp() {
   if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
     I("ip").textContent = "localhost (127.0.0.1)";
   } else {
-    I("ip").textContent = "10.10.148.25";  
+    I("ip").textContent = "192.168.12.103";  
   }
 }
 
@@ -1930,14 +1930,14 @@ var SPEEDTEST_SERVERS = [
 
    {
     name: "Main CDN Server",
-    server: "//10.5.5.150/",   // correct format
+    server: "//192.168.12.103/",   // correct format
     dlURL: "backend/garbage.php",
     ulURL: "backend/empty.php",
     pingURL: "backend/empty.php",
     getIpURL: "backend/getIP.php"
   },
     {
-    name: "CDNDSN3",
+    name: "CDN DSN3",
     server: "//10.6.6.165/",
     dlURL: "backend/garbage.php",
     ulURL: "backend/empty.php",
@@ -2096,7 +2096,7 @@ function checkAllZeroAfterTest() {
 
 
 function checkClientPings() {
-  fetch("http://10.10.148.25/backend/ping_clients.php")
+  fetch("http://192.168.12.103/backend/ping_clients.php")
     .then(res => res.json())
     .then(data => {
       console.log("Client Ping Results:", data);
@@ -2131,7 +2131,7 @@ function onServerChange() {
   const serverIp = getServerIp(selectedServer.server); // direct IP
 
   // Always hit Main CDN to check latency
-  const pingURL = `http://10.10.148.25/backend/ping_server.php?target=${serverIp}&t=${Math.random()}`;
+  const pingURL = `http://192.168.12.103/backend/ping_server.php?target=${serverIp}&t=${Math.random()}`;
 
   fetch(pingURL, { method: "GET", cache: "no-cache" })
     .then(res => res.json())
@@ -2312,7 +2312,7 @@ function startStop() {
 				};
 
 				// ✅ Save results to Main CDN server
-				fetch("http://10.10.148.25/backend/save_results.php", {
+				fetch("http://192.168.12.103/backend/save_results.php", {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify(payload)
@@ -2328,7 +2328,7 @@ function startStop() {
 				// 🔥 EXTRA: Server-to-Server check
 				try {
 					const res = await fetch(
-						"http://10.10.148.25/backend/ping_server_to_server.php?to=" + ip
+						"http://192.168.12.103/backend/ping_server_to_server.php?to=" + ip
 					);
 					const data = await res.json();
 					console.log("Server-to-server result:", data);
@@ -2348,7 +2348,7 @@ function startStop() {
 					}
 
 					// ✅ Re-save with server-to-server results
-					fetch("http://10.10.148.25/backend/save_results.php", {
+					fetch("http://192.168.12.103/backend/save_results.php", {
 						method: "POST",
 						headers: { "Content-Type": "application/json" },
 						body: JSON.stringify(payload)
