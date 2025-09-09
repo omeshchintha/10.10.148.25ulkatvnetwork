@@ -1845,12 +1845,12 @@ function getServerIp(serverUrl) {
 
 
 // async function setInitialIp() {
-//   if (window.location.hostname === "localhost" || window.location.hostname === "10.10.148.25") {
+//   if (window.location.hostname === "localhost" || window.location.hostname === "103.189.178.121") {
 //     // Local development run
 //     I("ip").textContent = "localhost (127.0.0.1)";
 //   } else {
 //     // ✅ Production లో ఎప్పుడూ hosting server IP చూపించాలి
-//     I("ip").textContent = "10.10.148.25";  
+//     I("ip").textContent = "103.189.178.121";  
 //   }
 // }
 
@@ -1859,7 +1859,7 @@ async function setInitialIp() {
   if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
     I("ip").textContent = "localhost (127.0.0.1)";
   } else {
-    I("ip").textContent = "192.168.12.103";  
+    I("ip").textContent = "103.189.178.121";  
   }
 }
 
@@ -1873,70 +1873,17 @@ function generateUUID() {
 
 function I(i){return document.getElementById(i);}
 
-// var SPEEDTEST_SERVERS = [
-
-//    {
-//     name: "Main CDN Server",
-//     server: "//10.10.148.25/",   // correct format
-//     dlURL: "backend/garbage.php",
-//     ulURL: "backend/empty.php",
-//     pingURL: "backend/empty.php",
-//     getIpURL: "backend/getIP.php"
-//   },
-//     {
-//     name: "Giganet IPTV Mumbai",
-//     server: "//103.98.7.234/",
-//     dlURL: "backend/garbage.php",
-//     ulURL: "backend/empty.php",
-//     pingURL: "backend/empty.php",
-//     getIpURL: "backend/getIP.php"
-//   },
-//     {
-//     name: "VijayWada Bsnl",
-//     server: "//192.168.80.2/",
-//     dlURL: "backend/garbage.php",
-//     ulURL: "backend/empty.php",
-//     pingURL: "backend/empty.php",
-//     getIpURL: "backend/getIP.php"
-//   },
-//    {
-//     name: "BSNL HYDERABAD",
-//     server: "//192.168.80.50/",
-//     dlURL: "backend/garbage.php",
-//     ulURL: "backend/empty.php",
-//     pingURL: "backend/empty.php",
-//     getIpURL: "backend/getIP.php"
-//   },
-//     {
-//     name: "RailTel Kolkata",
-//     server: "//172.26.147.14/",
-//     dlURL: "backend/garbage.php",
-//     ulURL: "backend/empty.php",
-//     pingURL: "backend/empty.php",
-//     getIpURL: "backend/getIP.php"
-//   },
-//    {
-//     name: "RailTel Bhubaneswar",
-//     server: "//172.26.147.46/",
-//     dlURL: "backend/garbage.php",
-//     ulURL: "backend/empty.php",
-//     pingURL: "backend/empty.php",
-//     getIpURL: "backend/getIP.php"
-//   },
-// ];
-
-
 var SPEEDTEST_SERVERS = [
 
    {
-    name: "Main CDN IP",
-    server: "//103.189.178.121/streamtv/",   // correct format
+    name: "Main CDN Server",
+    server: "//103.189.178.121/",   // correct format
     dlURL: "backend/garbage.php",
     ulURL: "backend/empty.php",
     pingURL: "backend/empty.php",
     getIpURL: "backend/getIP.php"
   },
-    {
+       {
     name: "CDN DSN3",
     server: "//10.6.6.165/",
     dlURL: "backend/garbage.php",
@@ -1971,14 +1918,6 @@ var SPEEDTEST_SERVERS = [
    {
     name: "KANPUR EXCITEL",
     server: "//172.29.3.178/",
-    dlURL: "backend/garbage.php",
-    ulURL: "backend/empty.php",
-    pingURL: "backend/empty.php",
-    getIpURL: "backend/getIP.php"
-  },
-     {
-    name: "BSNL HYDERABAD",
-    server: "//192.168.80.50/",
     dlURL: "backend/garbage.php",
     ulURL: "backend/empty.php",
     pingURL: "backend/empty.php",
@@ -2442,8 +2381,8 @@ function initUI(){
 <style type="text/css">
 	html,body{
 		border:none; padding:0; margin:0;
-		background: #ae9393;
-        color: rgb(137, 107, 107);
+		background: #f3ecec;
+        color: white;
 	}
 	body{
 		text-align:center;
@@ -2784,7 +2723,7 @@ function initUI(){
 	  </script>
 		
 	<div id="logo">
-	  <img src="removebg-preview.png" alt="ULKA TV Logo" style="height: 120px; width: 250px; margin-top: 30px;"/>
+		<img src="../ew.png" alt="ULKA TV Logo" style="height: 90px;"/>
 	</div>
 		
 	<h1>NetWork Diagnostics</h1>
@@ -2798,7 +2737,7 @@ function initUI(){
 		<div id="serverArea" 
 			style="display:flex; justify-content:center; align-items:center; gap:15px; margin-top:20px;">
 			
-			<label for="server" style="font-weight:bold;">Local Server:</label>
+			<label for="server" style="font-weight:bold;">Server:</label>
 			<select id="server" onchange="onServerChange()" style="padding:5px; font-size:14px;"></select>
 
 			<!-- ✅ Start Button next to Server -->

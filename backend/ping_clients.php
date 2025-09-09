@@ -1,6 +1,4 @@
 <?php
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET");
 header("Content-Type: application/json");
 
 // target server IP
@@ -9,8 +7,8 @@ if (!isset($_GET['target'])) {
     exit;
 }
 
-$target = escapeshellarg($_GET['target']); 
-$pingCmd = "ping -c 3 -W 2 $target"; 
+$target = escapeshellarg($_GET['target']); // prevent injection
+$pingCmd = "ping -c 3 -W 2 $target"; // 3 packets, timeout 2s
 $output = [];
 $returnVar = 0;
 
@@ -24,8 +22,12 @@ if ($returnVar !== 0) {
 // Parse average latency
 $latency = null;
 foreach ($output as $line) {
-    if (preg_match('/rtt min\/avg\/max\/mdev = .*\/(.*)\/.*\/.*/', $line, $matches)) {
-        $latency = round(floatval($matches[1]), 2);
+    if (strpos($line, "avg") !== false) {
+        // Example: rtt min/avg/max/mdev = 1.234/2.345/3.456/0.789 ms
+        preg_match('/= (.*)\/(.*)\/(.*)\/(.*) ms/', $line, $matches);
+        if (isset($matches[2])) {
+            $latency = round(floatval($matches[2]), 2);
+        }
     }
 }
 
@@ -35,4 +37,3 @@ echo json_encode([
     "latency_ms" => $latency,
     "raw" => $output
 ]);
-?>
