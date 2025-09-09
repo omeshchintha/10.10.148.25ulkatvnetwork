@@ -1873,51 +1873,104 @@ function generateUUID() {
 
 function I(i){return document.getElementById(i);}
 
+// var SPEEDTEST_SERVERS = [
+
+//    {
+//     name: "Main CDN Server",
+//     server: "//10.10.148.25/",   // correct format
+//     dlURL: "backend/garbage.php",
+//     ulURL: "backend/empty.php",
+//     pingURL: "backend/empty.php",
+//     getIpURL: "backend/getIP.php"
+//   },
+//     {
+//     name: "Giganet IPTV Mumbai",
+//     server: "//103.98.7.234/",
+//     dlURL: "backend/garbage.php",
+//     ulURL: "backend/empty.php",
+//     pingURL: "backend/empty.php",
+//     getIpURL: "backend/getIP.php"
+//   },
+//     {
+//     name: "VijayWada Bsnl",
+//     server: "//192.168.80.2/",
+//     dlURL: "backend/garbage.php",
+//     ulURL: "backend/empty.php",
+//     pingURL: "backend/empty.php",
+//     getIpURL: "backend/getIP.php"
+//   },
+//    {
+//     name: "BSNL HYDERABAD",
+//     server: "//192.168.80.50/",
+//     dlURL: "backend/garbage.php",
+//     ulURL: "backend/empty.php",
+//     pingURL: "backend/empty.php",
+//     getIpURL: "backend/getIP.php"
+//   },
+//     {
+//     name: "RailTel Kolkata",
+//     server: "//172.26.147.14/",
+//     dlURL: "backend/garbage.php",
+//     ulURL: "backend/empty.php",
+//     pingURL: "backend/empty.php",
+//     getIpURL: "backend/getIP.php"
+//   },
+//    {
+//     name: "RailTel Bhubaneswar",
+//     server: "//172.26.147.46/",
+//     dlURL: "backend/garbage.php",
+//     ulURL: "backend/empty.php",
+//     pingURL: "backend/empty.php",
+//     getIpURL: "backend/getIP.php"
+//   },
+// ];
+
+
 var SPEEDTEST_SERVERS = [
 
    {
     name: "Main CDN Server",
-    server: "//10.10.148.25/",   // correct format
+    server: "//10.5.5.150/",   // correct format
     dlURL: "backend/garbage.php",
     ulURL: "backend/empty.php",
     pingURL: "backend/empty.php",
     getIpURL: "backend/getIP.php"
   },
     {
-    name: "Giganet IPTV Mumbai",
-    server: "//103.98.7.234/",
+    name: "CDNDSN3",
+    server: "//10.6.6.165/",
     dlURL: "backend/garbage.php",
     ulURL: "backend/empty.php",
     pingURL: "backend/empty.php",
     getIpURL: "backend/getIP.php"
   },
     {
-    name: "VijayWada Bsnl",
-    server: "//192.168.80.2/",
+    name: "BLCRDHE EDGECDN1006",
+    server: "//10.7.7.252/",
     dlURL: "backend/garbage.php",
     ulURL: "backend/empty.php",
     pingURL: "backend/empty.php",
     getIpURL: "backend/getIP.php"
   },
    {
-    name: "BSNL HYDERABAD",
-    server: "//192.168.80.50/",
+    name: "EDGECDN KAMALAMILLSHATHWAY1007",
+    server: "//172.31.42.2/",
     dlURL: "backend/garbage.php",
     ulURL: "backend/empty.php",
     pingURL: "backend/empty.php",
     getIpURL: "backend/getIP.php"
   },
     {
-    name: "RailTel Kolkata",
-    server: "//172.26.147.14/",
+    name: "HYDERABAD EDGECDN1008",
+    server: "//172.31.32.2/",
     dlURL: "backend/garbage.php",
     ulURL: "backend/empty.php",
     pingURL: "backend/empty.php",
     getIpURL: "backend/getIP.php"
   },
    {
-    name: "RailTel Bhubaneswar",
-    server: "//172.26.147.46/",
+    name: "KANPUR EXCITEL EDGECDN1010",
+    server: "//172.29.3.178/",
     dlURL: "backend/garbage.php",
     ulURL: "backend/empty.php",
     pingURL: "backend/empty.php",
@@ -2373,8 +2426,8 @@ function initUI(){
 <style type="text/css">
 	html,body{
 		border:none; padding:0; margin:0;
-		background: #f3ecec;
-        color: white;
+		background: #a98282;
+        color: rgb(137, 107, 107);
 	}
 	body{
 		text-align:center;
@@ -2715,7 +2768,7 @@ function initUI(){
 	  </script>
 		
 	<div id="logo">
-		<img src="Rcast.png" alt="ULKA TV Logo" style="height: 90px;"/>
+	  <img src="removebg-preview.png" alt="ULKA TV Logo" style="height: 120px; width: 250px; margin-top: 30px;"/>
 	</div>
 		
 	<h1>NetWork Diagnostics</h1>
