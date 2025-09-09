@@ -1730,7 +1730,7 @@ function initUI(){
   };
   
 function testPing(targetIp) {
-   fetch("http://103.189.178.120/ping_server_to_server.php?to=10.6.6.165")
+   fetch("http://103.189.178.121/ping_server_to_server.php?to=10.6.6.165")
     .then(res => res.json())
     .then(data => {
       if (data.status === "ok") {
@@ -1930,7 +1930,7 @@ var SPEEDTEST_SERVERS = [
 
    {
     name: "Main CDN IP",
-    server: "//103.189.178.120//",   // correct format
+    server: "//103.189.178.121/streamtv/",   // correct format
     dlURL: "backend/garbage.php",
     ulURL: "backend/empty.php",
     pingURL: "backend/empty.php",
@@ -1953,7 +1953,7 @@ var SPEEDTEST_SERVERS = [
     getIpURL: "backend/getIP.php"
   },
    {
-    name: "EDGECDN KAMALAMILLSHATHWAY1007",
+    name: "KAMALAMILLSHATHWAY1007",
     server: "//172.31.42.2/",
     dlURL: "backend/garbage.php",
     ulURL: "backend/empty.php",
@@ -1969,8 +1969,24 @@ var SPEEDTEST_SERVERS = [
     getIpURL: "backend/getIP.php"
   },
    {
-    name: "KANPUR EXCITEL EDGECDN1010",
+    name: "KANPUR EXCITEL",
     server: "//172.29.3.178/",
+    dlURL: "backend/garbage.php",
+    ulURL: "backend/empty.php",
+    pingURL: "backend/empty.php",
+    getIpURL: "backend/getIP.php"
+  },
+     {
+    name: "BSNL HYDERABAD",
+    server: "//192.168.80.50/",
+    dlURL: "backend/garbage.php",
+    ulURL: "backend/empty.php",
+    pingURL: "backend/empty.php",
+    getIpURL: "backend/getIP.php"
+  },
+      {
+    name: "Testing",
+    server: "//192.168.12.53/",
     dlURL: "backend/garbage.php",
     ulURL: "backend/empty.php",
     pingURL: "backend/empty.php",
@@ -2096,7 +2112,7 @@ function checkAllZeroAfterTest() {
 
 
 function checkClientPings() {
-  fetch("http://103.189.178.120/backend/ping_clients.php")
+  fetch("http://103.189.178.121/backend/ping_clients.php")
     .then(res => res.json())
     .then(data => {
       console.log("Client Ping Results:", data);
@@ -2131,7 +2147,7 @@ function onServerChange() {
   const serverIp = getServerIp(selectedServer.server); // direct IP
 
   // Always hit Main CDN to check latency
-  const pingURL = `http://103.189.178.120/backend/ping_server.php?target=${serverIp}&t=${Math.random()}`;
+  const pingURL = `http://103.189.178.121/backend/ping_server.php?target=${serverIp}&t=${Math.random()}`;
 
   fetch(pingURL, { method: "GET", cache: "no-cache" })
     .then(res => res.json())
@@ -2312,7 +2328,7 @@ function startStop() {
 				};
 
 				// ✅ Save results to Main CDN server
-				fetch("http://103.189.178.120/backend/save_results.php", {
+				fetch("http://103.189.178.121/backend/save_results.php", {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify(payload)
@@ -2328,7 +2344,7 @@ function startStop() {
 				// 🔥 EXTRA: Server-to-Server check
 				try {
 					const res = await fetch(
-						"http://103.189.178.120/backend/ping_server_to_server.php?to=" + ip
+						"http://103.189.178.121/backend/ping_server_to_server.php?to=" + ip
 					);
 					const data = await res.json();
 					console.log("Server-to-server result:", data);
@@ -2348,7 +2364,7 @@ function startStop() {
 					}
 
 					// ✅ Re-save with server-to-server results
-					fetch("http://103.189.178.120/backend/save_results.php", {
+					fetch("http://103.189.178.121/backend/save_results.php", {
 						method: "POST",
 						headers: { "Content-Type": "application/json" },
 						body: JSON.stringify(payload)
