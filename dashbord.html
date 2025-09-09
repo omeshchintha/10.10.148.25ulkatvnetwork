@@ -1730,7 +1730,7 @@ function initUI(){
   };
   
 function testPing(targetIp) {
-   fetch("http://192.168.12.103/ping_server_to_server.php?to=103.98.7.234")
+   fetch("http://192.168.12.103/ping_server_to_server.php?to=10.6.6.165")
     .then(res => res.json())
     .then(data => {
       if (data.status === "ok") {
