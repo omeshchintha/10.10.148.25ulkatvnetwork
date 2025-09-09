@@ -140,9 +140,9 @@
 //   : "http://10.10.148.25/";    // Server run
 
 var SPEEDTEST_SERVERS = [
-  {
+   {
     name: "Main CDN IP",
-    server: "//192.168.12.103/",
+    server: "//103.189.178.120//",   // correct format
     dlURL: "backend/garbage.php",
     ulURL: "backend/empty.php",
     pingURL: "backend/empty.php",
