@@ -14,7 +14,7 @@ $start = microtime(true);
 
 // Read input in chunks
 while (!feof(STDIN)) {
-    $data = fread(STDIN, 1024*1024);
+    $data = fread(STDIN, 1024*1024); // 1 MB
     if ($data === false) break;
     $bytesReceived += strlen($data);
 }
