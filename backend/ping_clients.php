@@ -1,39 +1,52 @@
 <?php
 header("Content-Type: application/json");
 
-// target server IP
-if (!isset($_GET['target'])) {
-    echo json_encode(["error" => "No target provided"]);
-    exit;
-}
+// --- Clients list (name + ip) ---
+$clients = [
+  [ "name" => "Giganet IPTV Mumbai", "ip" => "103.98.7.234" ],
+  [ "name" => "VijayWada Bsnl", "ip" => "192.168.80.2" ],
+  [ "name" => "BSNL HYDERABAD", "ip" => "192.168.80.50" ],
+  [ "name" => "RailTel Kolkata", "ip" => "172.26.147.14" ],
+  [ "name" => "RailTel Bhubaneswar", "ip" => "172.26.147.46" ],
+  [ "name" => "StreamTv CDN", "ip" => "103.189.178.120/streamtv" ],
+  [ "name" => "ZYETEL", "ip" => "103.12.117.12" ]
+];
 
-$target = escapeshellarg($_GET['target']); // prevent injection
-$pingCmd = "ping -c 3 -W 2 $target"; // 3 packets, timeout 2s
-$output = [];
-$returnVar = 0;
+$results = [];
 
-exec($pingCmd, $output, $returnVar);
+foreach ($clients as $client) {
+    $ip = escapeshellarg($client['ip']);
+    $pingCmd = "ping -c 3 -W 2 $ip"; // 3 packets, timeout 2s
+    $output = [];
+    $returnVar = 0;
 
-if ($returnVar !== 0) {
-    echo json_encode(["status" => "down", "target" => $_GET['target']]);
-    exit;
-}
+    exec($pingCmd, $output, $returnVar);
 
-// Parse average latency
-$latency = null;
-foreach ($output as $line) {
-    if (strpos($line, "avg") !== false) {
-        // Example: rtt min/avg/max/mdev = 1.234/2.345/3.456/0.789 ms
-        preg_match('/= (.*)\/(.*)\/(.*)\/(.*) ms/', $line, $matches);
-        if (isset($matches[2])) {
-            $latency = round(floatval($matches[2]), 2);
+    $latency = null;
+    $status = "down";
+
+    if ($returnVar === 0) {
+        $status = "ok";
+        foreach ($output as $line) {
+            if (strpos($line, "avg") !== false) {
+                preg_match('/= (.*)\/(.*)\/(.*)\/(.*) ms/', $line, $matches);
+                if (isset($matches[2])) {
+                    $latency = round(floatval($matches[2]), 2);
+                }
+            }
         }
     }
+
+    $results[] = [
+        "name" => $client['name'],
+        "ip" => $client['ip'],
+        "status" => $status,
+        "latency_ms" => $latency,
+        "raw" => $output
+    ];
 }
 
 echo json_encode([
-    "status" => "ok",
-    "target" => $_GET['target'],
-    "latency_ms" => $latency,
-    "raw" => $output
-]);
+    "server" => getHostByName(getHostName()), // current server IP
+    "results" => $results
+], JSON_PRETTY_PRINT);
