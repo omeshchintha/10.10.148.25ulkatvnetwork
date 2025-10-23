@@ -35,7 +35,7 @@ if ($ret === 0 && !empty($out)) {
 }
 
 // ------------------- DOWNLOAD TEST -------------------
-$downloadUrl = "http://$to/ulkatvnetwork/backend/garbage.php";
+$downloadUrl = "http://$to/ulkamaincdnserver/backend/garbage.php";
 
 $ch = curl_init($downloadUrl);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
@@ -63,7 +63,7 @@ if ($timeTaken > 0) {
 }
 
 // ------------------- UPLOAD TEST -------------------
-$uploadUrl = "http://$to/ulkatvnetwork/backend/empty.php";
+$uploadUrl = "http://$to/ulkamaincdnserver/backend/empty.php";
 $bytesSent = 0;
 $startTime = microtime(true);
 
