@@ -2888,7 +2888,7 @@ function initServerToServerDropdown() {
   };
   
 function testPing(targetIp) {
-  fetch(`http://10.10.148.25/backend/ping_server_to_server.php?to=${encodeURIComponent(targetIp)}`)
+  fetch(`http://10.10.148.25/ulkatvnetwork/backend/ping_server_to_server.php?to=${encodeURIComponent(targetIp)}`)
     .then(res => res.json())
     .then(data => {
       if (data.status === "ok") {
@@ -2933,7 +2933,7 @@ function pingBetweenServers() {
     const backendUrl =
         window.location.hostname === "localhost"
             ? `/backend/ping_server_to_server.php?to=${getServerIp(serverB.server)}`
-            : `http://10.10.148.125/backend/ping_server_to_server.php?to=${encodeURIComponent(getServerIp(serverB.server))}`;
+            : `http://10.10.148.125/ulkatvnetwork/backend/ping_server_to_server.php?to=${encodeURIComponent(getServerIp(serverB.server))}`;
 
     fetch(backendUrl)
         .then(res => res.json())
@@ -3226,7 +3226,7 @@ function checkClientPings() {
   resultsDiv.innerHTML = ""; // reset previous results
 
   CLIENTS.forEach(client => {
-    fetch(`http://10.10.148.25/backend/ping_clients.php?target=${encodeURIComponent(client.ip)}`)
+    fetch(`http://10.10.148.25/ulkatvnetwork/backend/ping_clients.php?target=${encodeURIComponent(client.ip)}`)
       .then(res => res.json())
       .then(data => {
         console.log(`✅ ${client.name} (${client.ip}) Ping Results:`, data);
@@ -3276,7 +3276,7 @@ function onServerChange() {
   const selectedServer = SPEEDTEST_SERVERS[selectedIndex];
   const serverIp = getServerIp(selectedServer.server); // direct IP
 
-  const pingURL = `http://10.10.148.25/backend/ping_server.php?target=${encodeURIComponent(serverIp)}&t=${Math.random()}`;
+  const pingURL = `http://10.10.148.25/ulkatvnetwork/backend/ping_server.php?target=${encodeURIComponent(serverIp)}&t=${Math.random()}`;
 
   fetch(pingURL, { method: "GET", cache: "no-cache" })
     .then(res => res.json())
@@ -3471,7 +3471,7 @@ function startStop() {
 
         // ✅ Save results to Main CDN server
         fetch(
-          "http://10.10.148.25/backend/save_results.php",
+          "http://10.10.148.25/ulkatvnetwork/backend/save_results.php",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -3489,7 +3489,7 @@ function startStop() {
         // 🔥 EXTRA: Server-to-Server check
         try {
           const res = await fetch(
-            "http://10.10.148.25/backend/ping_server_to_server.php?to=" +
+            "http://10.10.148.25/ulkatvnetwork/backend/ping_server_to_server.php?to=" +
               ip
           );
           const data = await res.json();
@@ -3511,7 +3511,7 @@ function startStop() {
 
           // ✅ Re-save with server-to-server results
           fetch(
-            "http://10.10.148.25/backend/save_results.php",
+            "http://10.10.148.25/ulkatvnetwork/backend/save_results.php",
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
