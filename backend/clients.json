@@ -1,7 +1,8 @@
 [
-  { "name": "Client-7.234", "ip": "103.98.7.234" },
-  { "name": "Client-80.2", "ip": "192.168.80.2" },
-  { "name": "Client-80.50", "ip": "192.168.80.50" },
-  { "name": "Client-147.14", "ip": "172.26.147.14" },
-  { "name": "Client-147.46", "ip": "172.26.147.46" }
+  { "name": "Giganet IPTV Mumbai", "ip": "103.98.7.234" },
+  { "name": "VijayWada Bsnl", "ip": "192.168.80.50" },
+  { "name": "BSNL HYDERABAD", "ip": "192.168.80.50" },
+  { "name": "RailTel Kolkata", "ip": "172.26.147.14" },
+  { "name": "RailTel Bhubaneswar", "ip": "172.26.147.46" },
+  { "name": "StreamTv CDN Test", "ip": "103.189.178.120" }
 ]
