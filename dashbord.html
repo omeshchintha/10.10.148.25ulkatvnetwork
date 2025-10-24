@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
 <link rel="shortcut icon" href="favicon.ico">
@@ -8,20 +8,20 @@
 <script type="text/javascript">
 
 
-// ✅ Only clients (Main CDN తప్ప) dropdownలో fill చేయడానికి
-function initServerToServerDropdown() {
-  const serverBSelect = document.getElementById("serverB");
-  serverBSelect.innerHTML = "";
+  // ✅ Only clients (Main CDN తప్ప) dropdownలో fill చేయడానికి
+  function initServerToServerDropdown() {
+    const serverBSelect = document.getElementById("serverB");
+    serverBSelect.innerHTML = "";
 
-  SPEEDTEST_SERVERS.forEach((server, index) => {
-    if (server.name !== "Main CDN IP") {   // ❌ exclude Main CDN
-      const option = document.createElement("option");
-      option.value = index;
-      option.textContent = server.name;
-      serverBSelect.appendChild(option);
-    }
-  });
-}
+    SPEEDTEST_SERVERS.forEach((server, index) => {
+      if (server.name !== "Main CDN IP") {   // ❌ exclude Main CDN
+        const option = document.createElement("option");
+        option.value = index;
+        option.textContent = server.name;
+        serverBSelect.appendChild(option);
+      }
+    });
+  }
 
   window.onload = () => {
     setInitialIp();
@@ -50,8 +50,12 @@ function testPing(targetIp) {
     });
 }
 
+
 function pingBetweenServers() {
+    // From ఎప్పుడూ Main CDN (index 0)
     const serverA = SPEEDTEST_SERVERS[0];  
+
+    // To మాత్రం dropdown నుంచి తీసుకోవాలి
     const serverB = SPEEDTEST_SERVERS[document.getElementById("serverB").value];
 
     if (!serverB) {
@@ -59,33 +63,21 @@ function pingBetweenServers() {
         return;
     }
 
-    // Animation dots setup
-    let dotCount = 0;
-    const msgEl = I("serverToServerMsg");
-    const baseText = `⏳ Testing ${serverA.name} → ${serverB.name} Please wait`;
+    // Loading message
+    I("serverToServerMsg").textContent = `⏳ Testing ${serverA.name} → ${serverB.name} ...`;
+    I("serverToServerMsg").style.color = "black";
 
-    // start animation
-    const intervalId = setInterval(() => {
-        dotCount = (dotCount + 1) % 4; // 0,1,2,3
-        msgEl.textContent = baseText + ".".repeat(dotCount);
-    }, 500);
-
-    msgEl.style.color = "black";
-  
+    // Backend URL
     const backendUrl =
-        window.location.hostname === "localhost"
-            ? `/backend/ping_server_to_server.php?to=${getServerIp(serverB.server)}`
-            : `http://10.10.148.125/ulkamaincdnserver/backend/ping_server_to_server.php?to=${encodeURIComponent(getServerIp(serverB.server))}`;
+        window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+            ? `/backend/ping_server_to_server.php?from=${getServerIp(serverA.server)}&to=${getServerIp(serverB.server)}`
+            : `http://10.10.148.25/ulkamaincdnserver/backend/ping_server_to_server.php?from=${encodeURIComponent(getServerIp(serverA.server))}&to=${encodeURIComponent(getServerIp(serverB.server))}`;
 
     fetch(backendUrl)
         .then(res => res.json())
         .then(data => {
-            console.log("Server-to-Server Response:", data);
-
-            // stop animation
-            clearInterval(intervalId);
-
             if (data.status === "ok") {
+                // ✅ Populate test results
                 const testId = generateUUID();
                 I("testId").textContent = testId;
                 I("serverUsed").textContent = `${serverA.name} → ${serverB.name}`;
@@ -97,27 +89,27 @@ function pingBetweenServers() {
                 I("dlText").textContent = data.download_mbps ?? "-";
                 I("ulText").textContent = data.upload_mbps ?? "-";
 
+                // Share area
                 I("sharePing").textContent = I("pingText").textContent;
                 I("shareJitter").textContent = I("jitText").textContent;
                 I("shareDownload").textContent = I("dlText").textContent;
                 I("shareUpload").textContent = I("ulText").textContent;
 
-                msgEl.textContent = `✅ ${serverA.name} → ${serverB.name} tested successfully`;
-                msgEl.style.color = "Blue";
+                I("serverToServerMsg").textContent = `✅ ${serverA.name} → ${serverB.name} tested successfully`;
+                I("serverToServerMsg").style.color = "white";
                 I("shareArea").style.display = "";
             } else {
-                msgEl.textContent =
-                    `❌ ${serverA.name} → ${serverB.name} unreachable: ${data.message}`;
-                msgEl.style.color = "red";
+                I("serverToServerMsg").textContent = `❌ ${serverA.name} → ${serverB.name} unreachable`;
+                I("serverToServerMsg").style.color = "red";
             }
 
+            // Reset button color
             document.querySelector("button[onclick='pingBetweenServers()']").style.background = "#007bff";
         })
         .catch(err => {
-            clearInterval(intervalId);
-            console.error("Proxy Fetch Error:", err);
-            msgEl.textContent = "⚠️ Server-to-server test failed (Proxy error)";
-            msgEl.style.color = "orange";
+            console.error(err);
+            I("serverToServerMsg").textContent = "⚠️ Server-to-server test failed";
+            I("serverToServerMsg").style.color = "orange";
             document.querySelector("button[onclick='pingBetweenServers()']").style.background = "#007bff";
         });
 }
@@ -173,7 +165,6 @@ function generateUUID() {
 }
 
 function I(i){return document.getElementById(i);}
-
 
 var SPEEDTEST_SERVERS = [
 
@@ -252,6 +243,7 @@ const CLIENTS = [
   { name: "StreamTv CDN Test", ip: "103.189.178.120/streamtv" },
   { name: "ZYETEL", ip: "103.12.117.12" }
 ];
+
 // ✅ Add ping() function here
 async function testPing(server) {
   try {
@@ -302,7 +294,7 @@ function initServers() {
 
       // ✅ Clear old options before appending
       I("server").innerHTML = "";
-      I("serverB").innerHTML = "<option value=''>-- Select Cdn's--</option>";
+      I("serverB").innerHTML = "<option value=''>-- Select To --</option>";
 
       // Main client-server dropdown populate చేయడం
       for (var i = 0; i < SPEEDTEST_SERVERS.length; i++) {
@@ -372,6 +364,7 @@ function checkAllZeroAfterTest() {
     }, 5000); 
 }
 
+
 function checkClientPings() {
   const resultsDiv = document.getElementById("clientPingResults");
   resultsDiv.innerHTML = ""; // reset previous results
@@ -427,6 +420,7 @@ function onServerChange() {
   const selectedServer = SPEEDTEST_SERVERS[selectedIndex];
   const serverIp = getServerIp(selectedServer.server); // direct IP
 
+  // Always hit Main CDN to check latency
   const pingURL = `http://10.10.148.25/ulkamaincdnserver/backend/ping_server.php?target=${encodeURIComponent(serverIp)}&t=${Math.random()}`;
 
   fetch(pingURL, { method: "GET", cache: "no-cache" })
@@ -463,7 +457,7 @@ function onServerChange() {
 }
 
 
-var meterBk=/Trident.*rv:(\d+\.\d+)/i.test(navigator.userAgent)?"#EAEAEA":"#9CA3AF";
+var meterBk=/Trident.*rv:(\d+\.\d+)/i.test(navigator.userAgent)?"#EAEAEA":"#ffffff";
 var dlColor="#0d47a1";
   ulColor="#0d47a1";
 var progColor=meterBk;
@@ -743,8 +737,8 @@ function initUI(){
 <style type="text/css">
   html,body{
     border:none; padding:0; margin:0;
-    background: #f3ecec;
-        color: white;
+    background: #f08e8c;
+        color: rgb(237, 8, 8);
   }
   body{
     text-align:center;
@@ -1194,10 +1188,6 @@ function initUI(){
     }
     </script>
     
-  <!-- <div id="logo">
-    <img src="removebg-preview.png" alt="ULKA TV Logo" style="height: 150px; width: 350px; margin-top: 30px;"/>
-  </div> -->
-
     <div id="logo">
     <img src="../ew.png" alt="ULKA TV Logo" style="height: 90px;"/>
     </div>
@@ -1273,12 +1263,12 @@ function initUI(){
     <div class="testGroup">
             <div class="testArea2">
         <div class="testName">Ping</div>
-        <div id="pingText" class="meterText" style="color:#e75f5f"></div>
+        <div id="pingText" class="meterText" style="color:#0b0b0b"></div>
         <div class="unit">ms</div>
       </div>
       <div class="testArea2">
         <div class="testName">Jitter</div>
-        <div id="jitText" class="meterText" style="color:#e75f5f"></div>
+        <div id="jitText" class="meterText" style="color:#0b0b0b"></div>
         <div class="unit">ms</div>
       </div>
     </div>
@@ -1373,4 +1363,5 @@ function initUI(){
 </div>
 </body>
 </html>
+
 

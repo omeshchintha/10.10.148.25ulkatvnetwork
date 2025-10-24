@@ -44,46 +44,71 @@
  */
 
 var SPEEDTEST_SERVERS = [
+
+   {
+    name: "Main CDN Server",
+    server: "//10.10.148.25/",   // correct format
+    dlURL: "backend/garbage.php",
+    ulURL: "backend/empty.php",
+    pingURL: "backend/empty.php",
+    getIpURL: "backend/getIP.php"
+  },
     {
-        name: "Giganet IPTV Mumbai",
-        server: "//103.98.7.234/",
-        dlURL: "backend/garbage.php",
-        ulURL: "backend/empty.php",
-        pingURL: "backend/empty.php",
-        getIpURL: "backend/getIP.php"
-    },
+    name: "Giganet IPTV Mumbai",
+    server: "//103.98.7.234/",
+    dlURL: "backend/garbage.php",
+    ulURL: "backend/empty.php",
+    pingURL: "backend/empty.php",
+    getIpURL: "backend/getIP.php"
+  },
     {
-        name: "VijayWada Bsnl",
-        server: "//192.168.80.2/",
-        dlURL: "backend/garbage.php",
-        ulURL: "backend/empty.php",
-        pingURL: "backend/empty.php",
-        getIpURL: "backend/getIP.php"
-    },
+    name: "VijayWada Bsnl",
+    server: "//192.168.80.2/",
+    dlURL: "backend/garbage.php",
+    ulURL: "backend/empty.php",
+    pingURL: "backend/empty.php",
+    getIpURL: "backend/getIP.php"
+  },
+   {
+    name: "BSNL HYDERABAD",
+    server: "//192.168.80.50/",
+    dlURL: "backend/garbage.php",
+    ulURL: "backend/empty.php",
+    pingURL: "backend/empty.php",
+    getIpURL: "backend/getIP.php"
+  },
     {
-        name: "BSNL HYDERABAD",
-        server: "//192.168.80.50/",
-        dlURL: "backend/garbage.php",
-        ulURL: "backend/empty.php",
-        pingURL: "backend/empty.php",
-        getIpURL: "backend/getIP.php"
-    },
-    {
-        name: "RailTel Kolkata",
-        server: "//172.26.147.14/",
-        dlURL: "backend/garbage.php",
-        ulURL: "backend/empty.php",
-        pingURL: "backend/empty.php",
-        getIpURL: "backend/getIP.php"
-    },
-    {
-        name: "RailTel Bhubaneswar",
-        server: "//172.26.147.46/",
-        dlURL: "backend/garbage.php",
-        ulURL: "backend/empty.php",
-        pingURL: "backend/empty.php",
-        getIpURL: "backend/getIP.php"
-    }
+    name: "RailTel Kolkata",
+    server: "//172.26.147.14/",
+    dlURL: "backend/garbage.php",
+    ulURL: "backend/empty.php",
+    pingURL: "backend/empty.php",
+    getIpURL: "backend/getIP.php"
+  },
+   {
+    name: "RailTel Bhubaneswar",
+    server: "//172.26.147.46/",
+    dlURL: "backend/garbage.php",
+    ulURL: "backend/empty.php",
+    pingURL: "backend/empty.php",
+    getIpURL: "backend/getIP.php"
+  },
+   {
+    name: "StreamTv CDN",
+    server: "103.189.178.120/streamtv",
+    dlURL: "backend/garbage.php",
+    ulURL: "backend/empty.php",
+    pingURL: "backend/empty.php",
+    getIpURL: "backend/getIP.php"
+  },
+     {
+    name: "ZYETEL",
+    server: "103.12.117.12",
+    dlURL: "backend/garbage.php",
+    ulURL: "backend/empty.php",
+    pingURL: "backend/empty.php",
+    getIpURL: "backend/getIP.php"
+  },
 ];
 
     

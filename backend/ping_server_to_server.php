@@ -7,13 +7,14 @@ header("Content-Type: application/json; charset=UTF-8");
 set_time_limit(0);
 
 $to = $_GET['to'] ?? '';
-$duration = 20; // fixed 20 seconds
+$duration = 20; // 20 seconds fixed
 
 if (!$to) {
     echo json_encode(["status" => "error", "message" => "No target server given"]);
     exit;
 }
 
+// Result array
 $result = [
     "status" => "ok",
     "ping_ms" => null,
@@ -25,7 +26,6 @@ $result = [
 // ------------------- PING + JITTER -------------------
 $pingCmd = sprintf("ping -c 5 -q %s", escapeshellarg($to));
 exec($pingCmd, $out, $ret);
-
 if ($ret === 0 && !empty($out)) {
     $line = implode(" ", $out);
     if (preg_match('/rtt min\/avg\/max\/mdev = ([0-9.]+)\/([0-9.]+)\/([0-9.]+)\/([0-9.]+)/', $line, $m)) {
@@ -34,60 +34,27 @@ if ($ret === 0 && !empty($out)) {
     }
 }
 
-// ------------------- DOWNLOAD TEST -------------------
-$downloadUrl = "http://$to/ulkamaincdnserver/backend/garbage.php";
+// ------------------- Iperf3 Test -------------------
+$iperfCmd = sprintf(
+    "iperf3 -c %s -t %d -J",
+    escapeshellarg($to),
+    $duration
+);
+exec($iperfCmd, $output, $ret);
 
-$ch = curl_init($downloadUrl);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
-curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-curl_setopt($ch, CURLOPT_TIMEOUT, $duration);
+if ($ret === 0 && !empty($output)) {
+    $json = implode("", $output);
+    $data = json_decode($json, true);
 
-$bytesDownloaded = 0;
-$start = microtime(true);
+    if ($data) {
+        // Download = server → client
+        $result["download_mbps"] = isset($data["end"]["sum_received"]["bits_per_second"]) ?
+            round($data["end"]["sum_received"]["bits_per_second"] / 1024 / 1024, 2) : null;
 
-curl_setopt($ch, CURLOPT_WRITEFUNCTION, function($ch, $data) use (&$bytesDownloaded, $start, $duration) {
-    $bytesDownloaded += strlen($data);
-    if ((microtime(true) - $start) >= $duration) {
-        return 0; // stop after $duration sec
+        // Upload = client → server
+        $result["upload_mbps"] = isset($data["end"]["sum_sent"]["bits_per_second"]) ?
+            round($data["end"]["sum_sent"]["bits_per_second"] / 1024 / 1024, 2) : null;
     }
-    return strlen($data);
-});
-
-curl_exec($ch);
-curl_close($ch);
-
-$timeTaken = microtime(true) - $start;
-if ($timeTaken > 0) {
-    $result["download_mbps"] = round(($bytesDownloaded * 8) / ($timeTaken * 1024 * 1024), 2);
-}
-
-// ------------------- UPLOAD TEST -------------------
-$uploadUrl = "http://$to/ulkamaincdnserver/backend/empty.php";
-$bytesSent = 0;
-$startTime = microtime(true);
-
-$ch = curl_init($uploadUrl);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_TIMEOUT, $duration);
-
-$chunk = str_repeat("A", 1024 * 1024); // 1 MB
-
-curl_setopt($ch, CURLOPT_READFUNCTION, function($ch, $fd, $length) use (&$bytesSent, $chunk, $startTime, $duration) {
-    if ((microtime(true) - $startTime) >= $duration) {
-        return ""; // stop after $duration sec
-    }
-    $bytesSent += strlen($chunk);
-    return $chunk;
-});
-
-curl_exec($ch);
-curl_close($ch);
-
-$elapsed = microtime(true) - $startTime;
-if ($bytesSent > 0 && $elapsed > 0) {
-    $result["upload_mbps"] = round(($bytesSent * 8) / ($elapsed * 1024 * 1024), 2);
 }
 
 // ------------------- OUTPUT -------------------

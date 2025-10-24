@@ -104,4 +104,4 @@ along with this program.  If not, see <https://www.gnu.org/licenses/lgpl>.
 # clientnetworkcdn
 # 202.62.66.125CDN-
 # MainCdnServer
-# 10.10.148.25ulkatvnetwork
+# 10.10.148.25ulkamaincdnserver
