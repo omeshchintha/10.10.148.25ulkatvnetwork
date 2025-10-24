@@ -3,13 +3,12 @@ header("Content-Type: application/json");
 
 // --- Clients list (name + ip) ---
 $clients = [
-  [ "name" => "Giganet IPTV Mumbai", "ip" => "103.98.7.234" ],
   [ "name" => "VijayWada Bsnl", "ip" => "192.168.80.2" ],
   [ "name" => "BSNL HYDERABAD", "ip" => "192.168.80.50" ],
   [ "name" => "RailTel Kolkata", "ip" => "172.26.147.14" ],
   [ "name" => "RailTel Bhubaneswar", "ip" => "172.26.147.46" ],
   [ "name" => "StreamTv CDN", "ip" => "103.189.178.120/streamtv" ],
-  [ "name" => "ZYETEL", "ip" => "103.12.117.12" ]
+  [ "name" => "ZYETEL", "ip" => "192.168.80.218" ]
 ];
 
 $results = [];

@@ -52,10 +52,8 @@ function testPing(targetIp) {
 
 
 function pingBetweenServers() {
-    // From ఎప్పుడూ Main CDN (index 0)
     const serverA = SPEEDTEST_SERVERS[0];  
 
-    // To మాత్రం dropdown నుంచి తీసుకోవాలి
     const serverB = SPEEDTEST_SERVERS[document.getElementById("serverB").value];
 
     if (!serverB) {
@@ -63,11 +61,9 @@ function pingBetweenServers() {
         return;
     }
 
-    // Loading message
     I("serverToServerMsg").textContent = `⏳ Testing ${serverA.name} → ${serverB.name} ...`;
     I("serverToServerMsg").style.color = "black";
 
-    // Backend URL
     const backendUrl =
         window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
             ? `/backend/ping_server_to_server.php?from=${getServerIp(serverA.server)}&to=${getServerIp(serverB.server)}`
@@ -77,7 +73,6 @@ function pingBetweenServers() {
         .then(res => res.json())
         .then(data => {
             if (data.status === "ok") {
-                // ✅ Populate test results
                 const testId = generateUUID();
                 I("testId").textContent = testId;
                 I("serverUsed").textContent = `${serverA.name} → ${serverB.name}`;
@@ -89,7 +84,6 @@ function pingBetweenServers() {
                 I("dlText").textContent = data.download_mbps ?? "-";
                 I("ulText").textContent = data.upload_mbps ?? "-";
 
-                // Share area
                 I("sharePing").textContent = I("pingText").textContent;
                 I("shareJitter").textContent = I("jitText").textContent;
                 I("shareDownload").textContent = I("dlText").textContent;
@@ -103,7 +97,6 @@ function pingBetweenServers() {
                 I("serverToServerMsg").style.color = "red";
             }
 
-            // Reset button color
             document.querySelector("button[onclick='pingBetweenServers()']").style.background = "#007bff";
         })
         .catch(err => {
@@ -193,30 +186,6 @@ var SPEEDTEST_SERVERS = [
     getIpURL: "backend/getIP.php"
   },
    {
-    name: "BSNL HYDERABAD",
-    server: "//192.168.80.50/",
-    dlURL: "backend/garbage.php",
-    ulURL: "backend/empty.php",
-    pingURL: "backend/empty.php",
-    getIpURL: "backend/getIP.php"
-  },
-    {
-    name: "RailTel Kolkata",
-    server: "//172.26.147.14/",
-    dlURL: "backend/garbage.php",
-    ulURL: "backend/empty.php",
-    pingURL: "backend/empty.php",
-    getIpURL: "backend/getIP.php"
-  },
-   {
-    name: "RailTel Bhubaneswar",
-    server: "//172.26.147.46/",
-    dlURL: "backend/garbage.php",
-    ulURL: "backend/empty.php",
-    pingURL: "backend/empty.php",
-    getIpURL: "backend/getIP.php"
-  },
-   {
     name: "StreamTv CDN",
     server: "103.189.178.120/streamtv",
     dlURL: "backend/garbage.php",
@@ -226,7 +195,7 @@ var SPEEDTEST_SERVERS = [
   },
      {
     name: "ZYETEL",
-    server: "103.12.117.12",
+    server: "192.168.80.218",
     dlURL: "backend/garbage.php",
     ulURL: "backend/empty.php",
     pingURL: "backend/empty.php",
@@ -241,7 +210,7 @@ const CLIENTS = [
   { name: "RailTel Kolkata", ip: "172.26.147.14" },
   { name: "RailTel Bhubaneswar", ip: "172.26.147.46" },
   { name: "StreamTv CDN Test", ip: "103.189.178.120/streamtv" },
-  { name: "ZYETEL", ip: "103.12.117.12" }
+  { name: "ZYETEL", ip: "192.168.80.218" }
 ];
 
 // ✅ Add ping() function here
@@ -574,6 +543,7 @@ function startStop() {
           } else {
             hostUsed = window.location.origin + "/";
           }
+          // 🟢 Local vs Server check
 
           // UI Display
           if (testId && testId !== "N/A") {
@@ -594,7 +564,8 @@ function startStop() {
           I("shareUpload").textContent = upload;
 
           const now = new Date();
-          I("shareDateTime").textContent = now.toLocaleString();
+          I("shareDateTime").textContent = now.
+          // 🟢 Local vs Server checktoLocaleString();
 
           I("shareArea").style.display = "";
         } catch (e) {
@@ -735,11 +706,23 @@ function initUI(){
 }
 </script>
 <style type="text/css">
-  html,body{
-    border:none; padding:0; margin:0;
-    background: #f08e8c;
-        color: rgb(237, 8, 8);
+  html, body {
+    border: none;
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    background: linear-gradient(270deg, #f08e8c, #f0d68c, #8cf0d6, #8c8ef0, #f08ee1);
+    background-size: 1000% 1000%;
+    animation: gradientAnimation 15s ease infinite;
+    color: rgb(237, 8, 8);
   }
+
+@keyframes gradientAnimation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
   body{
     text-align:center;
     font-family:"Roboto",sans-serif;
