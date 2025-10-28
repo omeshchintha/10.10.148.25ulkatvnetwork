@@ -186,8 +186,24 @@ var SPEEDTEST_SERVERS = [
     getIpURL: "backend/getIP.php"
   },
    {
-    name: "StreamTv CDN",
-    server: "103.189.178.120/streamtv",
+    name: "BSNL HYDERABAD",
+    server: "//192.168.80.50/",
+    dlURL: "backend/garbage.php",
+    ulURL: "backend/empty.php",
+    pingURL: "backend/empty.php",
+    getIpURL: "backend/getIP.php"
+  },
+    {
+    name: "RailTel Kolkata",
+    server: "//172.26.147.14/",
+    dlURL: "backend/garbage.php",
+    ulURL: "backend/empty.php",
+    pingURL: "backend/empty.php",
+    getIpURL: "backend/getIP.php"
+  },
+   {
+    name: "RailTel Bhubaneswar",
+    server: "//172.26.147.46/",
     dlURL: "backend/garbage.php",
     ulURL: "backend/empty.php",
     pingURL: "backend/empty.php",
@@ -196,6 +212,14 @@ var SPEEDTEST_SERVERS = [
      {
     name: "ZYETEL",
     server: "192.168.80.218",
+    dlURL: "backend/garbage.php",
+    ulURL: "backend/empty.php",
+    pingURL: "backend/empty.php",
+    getIpURL: "backend/getIP.php"
+  },
+  {
+    name: "Aeronet BB Tarnaka",
+    server: "192.168.80.178",
     dlURL: "backend/garbage.php",
     ulURL: "backend/empty.php",
     pingURL: "backend/empty.php",
@@ -210,6 +234,7 @@ const CLIENTS = [
   { name: "RailTel Kolkata", ip: "172.26.147.14" },
   { name: "RailTel Bhubaneswar", ip: "172.26.147.46" },
   { name: "StreamTv CDN Test", ip: "103.189.178.120/streamtv" },
+  { name: "Aeronet BB Tarnaka", ip: "192.168.80.178" },
   { name: "ZYETEL", ip: "192.168.80.218" }
 ];
 
@@ -471,161 +496,316 @@ function format(d){
 //UI CODE
 var uiData = null;
 
-function startStop() {
-  if (s.getState() == 3) {
-    // speed test is running, abort
-    s.abort();
-    data = null;
-    I("startStopBtn").className = "";
-    I("server").disabled = false;
-    initUI();
-  } else {
-    // test is not running, begin
-    I("startStopBtn").className = "running";
-    I("shareArea").style.display = "none";
-    I("server").disabled = true;
+// function startStop() {
+//   if (s.getState() == 3) {
+//     // speed test is running, abort
+//     s.abort();
+//     data = null;
+//     I("startStopBtn").className = "";
+//     I("server").disabled = false;
+//     initUI();
+//   } else {
+//     // test is not running, begin
+//     I("startStopBtn").className = "running";
+//     I("shareArea").style.display = "none";
+//     I("server").disabled = true;
 
-    setInitialIp(); // ✅ Use updated version
+//     setInitialIp(); // ✅ Use updated version
 
-    // Clear old error
-    I("message").textContent = "";
-    I("message").style.color = "";
+//     // Clear old error
+//     I("message").textContent = "";
+//     I("message").style.color = "";
 
-    s.onupdate = function (data) {
-      uiData = data;
-    };
+//     s.onupdate = function (data) {
+//       uiData = data;
+//     };
 
-    s.onend = async function (aborted) {
-      console.log("Test Ended", aborted, uiData);
+//     s.onend = async function (aborted) {
+//       console.log("Test Ended", aborted, uiData);
 
+//       I("startStopBtn").className = "";
+//       I("server").disabled = false;
+//       updateUI(true);
+
+//       if (!aborted && (!uiData || !uiData.dlStatus)) {
+//         I("message").textContent =
+//           "❌ Server Down — Please select another server.";
+//         I("message").style.color = "red";
+//         // I("shareArea").style.display = "none";
+//         return;
+//       }
+
+//       if (!aborted) {
+//         let testId,
+//           ip,
+//           ping,
+//           jitter,
+//           download,
+//           upload,
+//           selectedServer;
+
+//         try {
+//           testId = uiData.testId || generateUUID();
+//           ping = format(uiData.pingStatus || 0);
+//           jitter = format(uiData.jitterStatus || 0);
+//           download = format(uiData.dlStatus || 0);
+//           upload = format(uiData.ulStatus || 0);
+//           selectedServer = s.getSelectedServer();
+
+//           // ✅ Server IP instead of client IP
+//           ip = selectedServer.server
+//             .replace("http://", "")
+//             .replace("https://", "")
+//             .replace(/\/$/, "");
+
+//           // 🟢 Local vs Server check
+//           let hostUsed = "";
+//           if (
+//             window.location.hostname === "localhost" ||
+//             window.location.hostname === "127.0.0.1"
+//           ) {
+//             hostUsed = "http://localhost/";
+//           } else {
+//             hostUsed = window.location.origin + "/";
+//           }
+//           // 🟢 Local vs Server check
+
+//           // UI Display
+//           if (testId && testId !== "N/A") {
+//             I("testId").textContent = testId;
+//           } else {
+//             I("testId").parentElement.style.display = "none";
+//           }
+
+//           if (selectedServer) {
+//             I("serverUsed").textContent =
+//               hostUsed + " → " + selectedServer.name;
+//           }
+
+//           I("shareIp").textContent = ip;
+//           I("sharePing").textContent = ping;
+//           I("shareJitter").textContent = jitter;
+//           I("shareDownload").textContent = download;
+//           I("shareUpload").textContent = upload;
+
+//           const now = new Date();
+//           I("shareDateTime").textContent = now.
+//           // 🟢 Local vs Server checktoLocaleString();
+
+//           I("shareArea").style.display = "";
+//         } catch (e) {
+//           console.error("Error populating share area:", e);
+//           return;
+//         }
+
+//         // ✅ API call remains same
+//         const payload = {
+//           test_id: testId,
+//           ip_address: ip,
+//           ping,
+//           jitter,
+//           download_speed: download,
+//           upload_speed: upload,
+//           server: selectedServer?.name || "Unknown",
+//           datetime: new Date().toISOString(),
+//         };
+
+//         // ✅ Save results to Main CDN server
+//         fetch(
+//           "http://10.10.148.25/ulkamaincdnserver/backend/save_results.php",
+//           {
+//             method: "POST",
+//             headers: { "Content-Type": "application/json" },
+//             body: JSON.stringify(payload),
+//           }
+//         )
+//           .then((response) => response.json())
+//           .then((data) => {
+//             console.log("Results saved to server:", data);
+//           })
+//           .catch((error) => {
+//             console.error("Saving results failed:", error);
+//           });
+
+//         // 🔥 EXTRA: Server-to-Server check
+//         try {
+//           const res = await fetch(
+//             "http://10.10.148.25/ulkamaincdnserver/backend/ping_server_to_server.php?to=" +
+//               ip
+//           );
+//           const data = await res.json();
+//           console.log("Server-to-server result:", data);
+
+//           if (data.status === "ok") {
+//             // ✅ Update values from backend
+//             I("sharePing").textContent = data.ping_ms + " ms";
+//             I("shareJitter").textContent = data.jitter_ms + " ms";
+//             I("shareDownload").textContent = data.download_mbps + " Mbps";
+//             I("shareUpload").textContent = data.upload_mbps + " Mbps";
+
+//             // ✅ Merge into payload
+//             payload.ping = data.ping_ms;
+//             payload.jitter = data.jitter_ms;
+//             payload.download_speed = data.download_mbps;
+//             payload.upload_speed = data.upload_mbps;
+//           }
+
+//           // ✅ Re-save with server-to-server results
+//           fetch(
+//             "http://10.10.148.25/ulkamaincdnserver/backend/save_results.php",
+//             {
+//               method: "POST",
+//               headers: { "Content-Type": "application/json" },
+//               body: JSON.stringify(payload),
+//             }
+//           )
+//             .then((response) => response.json())
+//             .then((data) => {
+//               console.log(
+//                 "Updated results with server-to-server:",
+//                 data
+//               );
+//             })
+//             .catch((error) => {
+//               console.error("Re-saving results failed:", error);
+//             });
+//         } catch (err) {
+//           console.error("Server-to-server fetch failed:", err);
+//         }
+//       }
+//     };
+
+//     function getServerIp(serverUrl) {
+//       let ip = serverUrl
+//         .replace("http://", "")
+//         .replace("https://", "")
+//         .replace("//", "");
+
+//       // Take only before first "/" → gives only IP
+//       ip = ip.split("/")[0];
+
+//       console.log("getServerIp(", serverUrl, ") ->", ip);
+//       return ip;
+//     }
+//     s.start();
+//     checkAllZeroAfterTest();
+//   }
+// }
+
+
+  function startStop() {
+    if (s.getState() == 3) {
+      // speed test is running, abort
+      s.abort();
+      data = null;
       I("startStopBtn").className = "";
       I("server").disabled = false;
-      updateUI(true);
+      initUI();
+    } else {
+      // test is not running, begin
+      I("startStopBtn").className = "running";
+      I("shareArea").style.display = "none";
+      I("server").disabled = true;
 
-      if (!aborted && (!uiData || !uiData.dlStatus)) {
-        I("message").textContent =
-          "❌ Server Down — Please select another server.";
-        I("message").style.color = "red";
-        // I("shareArea").style.display = "none";
-        return;
-      }
+      setInitialIp(); // ✅ Use updated version
 
-      if (!aborted) {
-        let testId,
-          ip,
-          ping,
-          jitter,
-          download,
-          upload,
-          selectedServer;
+      // Clear old error
+      I("message").textContent = "";
+      I("message").style.color = "";
 
-        try {
-          testId = uiData.testId || generateUUID();
-          ping = format(uiData.pingStatus || 0);
-          jitter = format(uiData.jitterStatus || 0);
-          download = format(uiData.dlStatus || 0);
-          upload = format(uiData.ulStatus || 0);
-          selectedServer = s.getSelectedServer();
+      s.onupdate = function (data) {
+        uiData = data;
+      };
 
-          // ✅ Server IP instead of client IP
-          ip = selectedServer.server
-            .replace("http://", "")
-            .replace("https://", "")
-            .replace(/\/$/, "");
+      s.onend = async function (aborted) {
+        console.log("Test Ended", aborted, uiData);
 
-          // 🟢 Local vs Server check
-          let hostUsed = "";
-          if (
-            window.location.hostname === "localhost" ||
-            window.location.hostname === "127.0.0.1"
-          ) {
-            hostUsed = "http://localhost/";
-          } else {
-            hostUsed = window.location.origin + "/";
-          }
-          // 🟢 Local vs Server check
+        I("startStopBtn").className = "";
+        I("server").disabled = false;
+        updateUI(true);
 
-          // UI Display
-          if (testId && testId !== "N/A") {
-            I("testId").textContent = testId;
-          } else {
-            I("testId").parentElement.style.display = "none";
-          }
-
-          if (selectedServer) {
-            I("serverUsed").textContent =
-              hostUsed + " → " + selectedServer.name;
-          }
-
-          I("shareIp").textContent = ip;
-          I("sharePing").textContent = ping;
-          I("shareJitter").textContent = jitter;
-          I("shareDownload").textContent = download;
-          I("shareUpload").textContent = upload;
-
-          const now = new Date();
-          I("shareDateTime").textContent = now.
-          // 🟢 Local vs Server checktoLocaleString();
-
-          I("shareArea").style.display = "";
-        } catch (e) {
-          console.error("Error populating share area:", e);
+        if (!aborted && (!uiData || !uiData.dlStatus)) {
+          I("message").textContent =
+            "❌ Server Down — Please select another server.";
+          I("message").style.color = "red";
+          // I("shareArea").style.display = "none";
           return;
         }
 
-        // ✅ API call remains same
-        const payload = {
-          test_id: testId,
-          ip_address: ip,
-          ping,
-          jitter,
-          download_speed: download,
-          upload_speed: upload,
-          server: selectedServer?.name || "Unknown",
-          datetime: new Date().toISOString(),
-        };
+        if (!aborted) {
+          let testId,
+            ip,
+            ping,
+            jitter,
+            download,
+            upload,
+            selectedServer;
 
-        // ✅ Save results to Main CDN server
-        fetch(
-          "http://10.10.148.25/ulkamaincdnserver/backend/save_results.php",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
+          try {
+            testId = uiData.testId || generateUUID();
+            ping = format(uiData.pingStatus || 0);
+            jitter = format(uiData.jitterStatus || 0);
+            download = format(uiData.dlStatus || 0);
+            upload = format(uiData.ulStatus || 0);
+            selectedServer = s.getSelectedServer();
+
+            // ✅ Server IP instead of client IP
+            ip = selectedServer.server
+              .replace("http://", "")
+              .replace("https://", "")
+              .replace(/\/$/, "");
+
+            // 🟢 Local vs Server check
+            let hostUsed = "";
+            if (
+              window.location.hostname === "localhost" ||
+              window.location.hostname === "127.0.0.1"
+            ) {
+              hostUsed = "http://localhost/";
+            } else {
+              hostUsed = window.location.origin + "/";
+            }
+
+            // UI Display
+            if (testId && testId !== "N/A") {
+              I("testId").textContent = testId;
+            } else {
+              I("testId").parentElement.style.display = "none";
+            }
+
+            if (selectedServer) {
+              I("serverUsed").textContent =
+                hostUsed + " → " + selectedServer.name;
+            }
+
+            I("shareIp").textContent = ip;
+            I("sharePing").textContent = ping;
+            I("shareJitter").textContent = jitter;
+            I("shareDownload").textContent = download;
+            I("shareUpload").textContent = upload;
+
+            const now = new Date();
+            I("shareDateTime").textContent = now.toLocaleString();
+
+            I("shareArea").style.display = "";
+          } catch (e) {
+            console.error("Error populating share area:", e);
+            return;
           }
-        )
-          .then((response) => response.json())
-          .then((data) => {
-            console.log("Results saved to server:", data);
-          })
-          .catch((error) => {
-            console.error("Saving results failed:", error);
-          });
 
-        // 🔥 EXTRA: Server-to-Server check
-        try {
-          const res = await fetch(
-            "http://10.10.148.25/ulkamaincdnserver/backend/ping_server_to_server.php?to=" +
-              ip
-          );
-          const data = await res.json();
-          console.log("Server-to-server result:", data);
+          // ✅ API call remains same
+          const payload = {
+            test_id: testId,
+            ip_address: ip,
+            ping,
+            jitter,
+            download_speed: download,
+            upload_speed: upload,
+            server: selectedServer?.name || "Unknown",
+            datetime: new Date().toISOString(),
+          };
 
-          if (data.status === "ok") {
-            // ✅ Update values from backend
-            I("sharePing").textContent = data.ping_ms + " ms";
-            I("shareJitter").textContent = data.jitter_ms + " ms";
-            I("shareDownload").textContent = data.download_mbps + " Mbps";
-            I("shareUpload").textContent = data.upload_mbps + " Mbps";
-
-            // ✅ Merge into payload
-            payload.ping = data.ping_ms;
-            payload.jitter = data.jitter_ms;
-            payload.download_speed = data.download_mbps;
-            payload.upload_speed = data.upload_mbps;
-          }
-
-          // ✅ Re-save with server-to-server results
+          // ✅ Save results to Main CDN server
           fetch(
             "http://10.10.148.25/ulkamaincdnserver/backend/save_results.php",
             {
@@ -636,37 +816,76 @@ function startStop() {
           )
             .then((response) => response.json())
             .then((data) => {
-              console.log(
-                "Updated results with server-to-server:",
-                data
-              );
+              console.log("Results saved to server:", data);
             })
             .catch((error) => {
-              console.error("Re-saving results failed:", error);
+              console.error("Saving results failed:", error);
             });
-        } catch (err) {
-          console.error("Server-to-server fetch failed:", err);
+
+          // 🔥 EXTRA: Server-to-Server check
+          try {
+            const res = await fetch(
+              "http://10.10.148.25/ulkamaincdnserver/backend/ping_server_to_server.php?to=" +
+                ip
+            );
+            const data = await res.json();
+            console.log("Server-to-server result:", data);
+
+            if (data.status === "ok") {
+              // ✅ Update values from backend
+              I("sharePing").textContent = data.ping_ms + " ms";
+              I("shareJitter").textContent = data.jitter_ms + " ms";
+              I("shareDownload").textContent = data.download_mbps + " Mbps";
+              I("shareUpload").textContent = data.upload_mbps + " Mbps";
+
+              // ✅ Merge into payload
+              payload.ping = data.ping_ms;
+              payload.jitter = data.jitter_ms;
+              payload.download_speed = data.download_mbps;
+              payload.upload_speed = data.upload_mbps;
+            }
+
+            // ✅ Re-save with server-to-server results
+            fetch(
+              "http://10.10.148.25/ulkamaincdnserver/backend/save_results.php",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+              }
+            )
+              .then((response) => response.json())
+              .then((data) => {
+                console.log(
+                  "Updated results with server-to-server:",
+                  data
+                );
+              })
+              .catch((error) => {
+                console.error("Re-saving results failed:", error);
+              });
+          } catch (err) {
+            console.error("Server-to-server fetch failed:", err);
+          }
         }
+      };
+
+      function getServerIp(serverUrl) {
+        let ip = serverUrl
+          .replace("http://", "")
+          .replace("https://", "")
+          .replace("//", "");
+
+        // Take only before first "/" → gives only IP
+        ip = ip.split("/")[0];
+
+        console.log("getServerIp(", serverUrl, ") ->", ip);
+        return ip;
       }
-    };
-
-    function getServerIp(serverUrl) {
-      let ip = serverUrl
-        .replace("http://", "")
-        .replace("https://", "")
-        .replace("//", "");
-
-      // Take only before first "/" → gives only IP
-      ip = ip.split("/")[0];
-
-      console.log("getServerIp(", serverUrl, ") ->", ip);
-      return ip;
+      s.start();
+      checkAllZeroAfterTest();
     }
-    s.start();
-    checkAllZeroAfterTest();
   }
-}
-
 
 //this function reads the data sent back by the test and updates the UI
 function updateUI(forced){
@@ -722,7 +941,11 @@ function initUI(){
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
-
+ /* html,body{
+    border:none; padding:0; margin:0;
+    background: #f3ecec;
+        color: white;
+  } */
   body{
     text-align:center;
     font-family:"Roboto",sans-serif;
@@ -1346,5 +1569,4 @@ function initUI(){
 </div>
 </body>
 </html>
-
 
